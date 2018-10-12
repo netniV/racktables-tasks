@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `frequency` int(10) unsigned NOT NULL,
  `enabled` enum('yes','no') NOT NULL DEFAULT 'no',
  `object_id` int(10) unsigned NOT NULL,
- `processed_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `processed_time` timestamp NULL,
  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`),
  KEY `object_id` (`object_id`)
