@@ -13,42 +13,26 @@ $date = date('Y-m-d H:i:s');
 $flist = array();
 foreach ($definitions as $definition)
 {
-	$last = new DateTime($definition['processed_time']);
-	$time = $last->getTimestamp();
-	$freq = $definition['frequency'];
-	$next = ($time + $freq);
-	$true = ($now >= $next);
+	if ($definition['mode'] == 'schedule') {
+		$last = new DateTime($definition['processed_time']);
+		$freq = $definition['frequency'];
+		$next = getTasksNextDue($freq, $last);
+		$true = ($last >= $next);
 
-	printf("Definition ID: %3d, (%11d + %11d) (%3s) %11d < %s\n", $definition['id'], $time, $freq, $true ? 'Yes':'No', $next, $now);
+		printf("Definition ID: %3d, (%11d + %11d) (%3s) %11d < %s\n", $definition['id'], $last->getTimestamp(), $next->getTimestamp(), $true ? 'Yes':'No', $next, $now);
 
-	if ($true) {
-		$dbxlink->beginTransaction();
+		if ($true) {
+			$dbxlink->beginTransaction();
 
-		$queries = array();
-		$queries[] = "
-INSERT INTO TasksItem (definition_id, object_id, name, description)
-VALUES (
-	{$definition['id']},   {$definition['object_id']},
-	'{$definition['name']}', '{$definition['description']}'
-)
-";
-		$queries[] = "
-UPDATE TasksDefinition SET processed_time = '{$date}' WHERE id = {$definition['id']}
-";
-		foreach ($queries as $query) {
 			try
 			{
-				$success = $dbxlink->exec ($query) !== FALSE;
+				insertTasksItem ($definition['id'], $definition['mode'], $definition['name'], $definition['description'], $definition['object_id'], $next);
+				updateTasksDefinitionProcessedTime ($definition['id'], $date);
 			}
 			catch (PDOException $e)
 			{
-				echo (string)$e . PHP_EOL;
-				echo PHP_EOL . 'Query: ' . $query .PHP_EOL;
 				$success = FALSE;
-			}
-			if (! $success) {
-				$flist[] = $query;
-				break;
+				$flist[] = $definition;
 			}
 		}
 		if (!$success)
