@@ -111,6 +111,7 @@ CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `mode` enum('due', 'schedule') NOT NULL DEFAULT 'due',
  `enabled` enum('yes','no') NOT NULL DEFAULT 'no',
  `object_id` int(10) unsigned NOT NULL,
+ `start_time` timestamp NOT NULL,
  `processed_time` timestamp NULL,
  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`),
@@ -307,6 +308,28 @@ function getTasksItems ($object_id, $include_completed = false)
 	return $result->fetchAll (PDO::FETCH_ASSOC);
 }
 
+function getTasksFrequencyList() {
+	return "<datalist id='frequencyList'>
+			<option value='daily (tomorrow)'>
+			<option value='weekly (+1 week midnight)'>
+			<option value='monthly (+1 month midnight)'>
+			<option value='quarterly (+3 months midnight)'>
+			<option value='semi-annual (+6 months midnight)'>
+			<option value='annual (+1 year midnight)'>
+			<option value='first of month (first day of next month)'>
+			<option value='last of month (last day of next month)'>
+			<option value='first tuesday (first tuesday of next month)'>
+			<option value='last tuesday (last tuesday of next month)'>
+			<option value='next monday'>
+			<option value='next tuesday'>
+			<option value='next wednesday'>
+			<option value='next thursday'>
+			<option value='next friday'>
+			<option value='next saturday'>
+			<option value='next sunday'>
+	</datalist>";
+}
+
 function getTasksDefinitions ()
 {
 	$result = usePreparedSelectBlade
@@ -344,6 +367,8 @@ function renderTasksDefinitions ()
 
 function renderTasksDefinitionsEditor ()
 {
+	echo getTasksFrequencyList();
+
 	function printNewItemTR ()
 	{
 		printOpFormIntro ('add');
@@ -353,7 +378,7 @@ function renderTasksDefinitionsEditor ()
 			'<td><input type=text size=48 name=description></td>' .
 			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled', 'id' => 'enabled'), 'yes') . '</td>' .
 			'<td>' . getSelect (getTasksModes(), array ('name' => 'mode', 'id' => 'mode'), 'due') . '</td>' .
-			'<td><input type=text size=24 name=frequency value="tomorrow 6am"></td>' .
+			'<td><input type=text size=24 name=frequency list="frequencyList"></td>' .
 			'<td>' . getSelect (getTasksObjects(), array('name' => 'object_id', 'id' => 'object_id'), 0, FALSE) . '</td>' .
 			'<td>&nbsp;</td>' .
 			'<td>&nbsp;</td>' .
@@ -387,7 +412,7 @@ function renderTasksDefinitionsEditor ()
 		echo '<td><input type=text size=48 name=description value="' . htmlspecialchars ($definition['description'], ENT_QUOTES, 'UTF-8') . '"></td>';
 		echo '<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled', 'id' => 'enabled'), $definition['enabled']) . '</td>';
 		echo '<td>' . getSelect (getTasksModes(), array ('name' => 'mode', 'id' => 'mode'), $definition['mode']) . '</td>';
-		echo '<td><input type=text size=24 name=frequency value="' . htmlspecialchars ($definition['frequency'], ENT_QUOTES, 'UTF-8') . '"></td>';
+		echo '<td><input type=text size=24 name=frequency list="frequencyList" value="' . htmlspecialchars ($definition['frequency'], ENT_QUOTES, 'UTF-8') . '"></td>';
 		echo '<td>' . getSelect (getTasksObjects(), array('name' => 'object_id', 'id' => 'object_id'), $definition['object_id'], FALSE) . '</td>';
 		echo "<td class=tdright>${definition['num_items']}</td>";
 		echo '<td>' . getImageHREF ('save', 'update this definition', TRUE) . '</td>';
