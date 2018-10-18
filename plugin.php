@@ -548,15 +548,17 @@ function renderTasksItems ($object_id)
 			}
 		}
 
-		if (empty($task['object_name'])) {
-			$task['object_name'] = '<none>';
-		}
-
 		printOpFormIntro ('upd', array ('id' => $task['id']));
 		echo '<tr style="background: ' . $color . ';"><td>';
 		if ($isTasksPage) {
-			echo '<td>' .  mkA (stringForLabel ($task['object_name']), 'object', $task['object_id']) . '</td>';
+			if (empty($task['object_name'])) {
+				echo '<td>&nbsp;</td>';
+			} else {
+				echo '<td>' .  mkA (stringForLabel ($task['object_name']), 'object', $task['object_id']) . '</td>';
+			}
 		}
+
+
 		echo '<td>' . mkA (stringForLabel ($task['name']), 'tasks', $task['definition_id'], 'definitions') . '</td>';
 		echo '<td>' . htmlspecialchars ($task['description'], ENT_QUOTES, 'UTF-8') . '</td>';
 		echo '<td>' . htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8') . '</td>';
