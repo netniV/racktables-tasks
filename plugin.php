@@ -208,6 +208,7 @@ function plugin_tasks_dispatchImageRequest ()
 function plugin_tasks_resetObject ($object_id)
 {
 	usePreparedDeleteBlade ('TasksItem', array ('object_id' => $object_id));
+	usePreparedDeleteBlade ('TasksDefinition', array ('object_id' => $object_id));
 }
 
 function plugin_tasks_resetUIConfig ()
@@ -554,9 +555,9 @@ function renderTasksItems ($object_id)
 		printOpFormIntro ('upd', array ('id' => $task['id']));
 		echo '<tr style="background: ' . $color . ';"><td>';
 		if ($isTasksPage) {
-			echo '<td>' . htmlspecialchars ($task['object_name'], ENT_QUOTES, 'UTF-8') . '</td>';
+			echo '<td>' .  mkA (stringForLabel ($task['object_name']), 'object', $task['object_id']) . '</td>';
 		}
-		echo '<td>' . htmlspecialchars ($task['name'], ENT_QUOTES, 'UTF-8') . '</td>';
+		echo '<td>' . mkA (stringForLabel ($task['name']), 'tasks', $task['definition_id'], 'definitions') . '</td>';
 		echo '<td>' . htmlspecialchars ($task['description'], ENT_QUOTES, 'UTF-8') . '</td>';
 		echo '<td>' . htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8') . '</td>';
 		echo '<td>' . htmlspecialchars ($task['created_time'], ENT_QUOTES, 'UTF-8') . '</td>';
@@ -670,6 +671,7 @@ function updateTasksDefinition($id, $name, $description, $enabled, $frequency, $
 		array('id' => $id)
 	);
 
+	disableTasksItemsOutstanding ($id);
 	ensureTasksDefinitionNextDue ($id);
 }
 
@@ -685,7 +687,7 @@ function updateTasksDefinitionProcessedTime ($id, $date) {
 		$fields,
 		array('id' => $id)
 	);
-} 
+}
 
 function updTasksItem () {
 
@@ -723,7 +725,7 @@ function insertTasksItem($definition_id, $mode, $name, $description, $object_id,
 	);
 }
 
-function updateTasksItem($id, $completed, $notes) {
+function updateTasksItem($id, $completed, $notes, $user = '') {
 
 	global $remote_username;
 
@@ -738,7 +740,7 @@ function updateTasksItem($id, $completed, $notes) {
 	if ($row) {
 
 		if ($row['completed'] == 'yes') {
-			throw new RTDatabaseError('Cannot update an already completed record');
+			throw new RTDatabaseError('Cannot update an already completed record: ' . $id);
 		}
 
 		$fields = array( 'notes' => $notes );
@@ -746,7 +748,7 @@ function updateTasksItem($id, $completed, $notes) {
 		if ($completed == 'yes') {
 			$fields['completed'] = $completed;
 			$fields['completed_time'] = date('Y-m-d H:i:s');
-			$fields['user_name'] = $remote_username;
+			$fields['user_name'] = empty($user) ? $remote_username : $user;
 
 			/*
 			if (empty($fields['notes'])) {
@@ -796,6 +798,17 @@ function ensureTasksDefinitionNextDue($id) {
 			*/
 
 			insertTasksItem($definition['id'], $definition['mode'], $definition['name'], $definition['description'], $definition['object_id'], $next->format('Y-m-d H:i:s'));
+		}
+	}
+}
+function disableTasksItemsOutstanding($id) {
+	$definition_select = usePreparedSelectBlade ("SELECT * FROM TasksDefinition WHERE id = ?", array($id));
+	$definition = $definition_select->fetch (PDO::FETCH_ASSOC);
+	if ($definition && $definition['enabled'] == 'no') {
+		$item_select = usePreparedSelectBlade ("SELECT id FROM TasksItem WHERE definition_id = ? and completed = 'no'", array($id));
+		$item = $item_select->fetch (PDO::FETCH_ASSOC);
+		if (isset($item['id'])) {
+			updateTasksItem ($item['id'], 'yes', 'Auto completed by System (definition disabled)', 'system');
 		}
 	}
 }
