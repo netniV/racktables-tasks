@@ -276,7 +276,7 @@ function getTasksObjects() {
 	(
 		'SELECT 0 as `id`, \'none\' as `name`
 		UNION
-		(SELECT `id`, `name` FROM `Object` WHERE objtype_id = 4 ORDER BY `name`)'
+		(SELECT `id`, `name` FROM `Object` ORDER BY `name`)'
 	);
 	return reduceSubarraysToColumn(reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
 }
