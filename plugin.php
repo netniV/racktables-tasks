@@ -7,7 +7,7 @@ function plugin_tasks_info ()
 		'name' => 'tasks',
 		'longname' => 'Tasks',
 		'version' => '1.0',
-		'home_url' => 'http://www.racktables.org/'
+		'home_url' => 'http://www.github.com/netniv/racktables-tasks/'
 	);
 }
 
@@ -62,6 +62,11 @@ function plugin_tasks_init ()
 	registerHook ('resetObject_hook', 'plugin_tasks_resetObject');
 	registerHook ('resetUIConfig_hook', 'plugin_tasks_resetUIConfig');
 
+	addCSS("
+	@import url('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css');
+	@import url('https://npmcdn.com/flatpickr/dist/themes/material_blue.css');
+	", true);
+
 	global $plugin_tasks_fkeys;
 	$plugin_tasks_fkeys = array (
 		array ('fkey_name' => 'TasksItem-FK-object_id', 'table_name' => 'TasksItem'),
@@ -74,18 +79,23 @@ function plugin_tasks_assert ($argname, $argtype) {
 	global $sic;
 	switch ($argtype) {
 		case 'frequency':
-			$freq = $sic[$argname];
-			$date_orig = new DateTime();
-			$date_freq = clone $date_orig;
-
 			try {
-				$date_freq = getTasksNextDue($freq, $date_orig);
+				$freq = parseTasksFrequency($sic[$argname]);
+				$date_orig = new DateTime();
+				$date_freq = clone $date_orig;
+
+				$date_freq = getTasksNextDue($freq['data'], $date_orig);
 			} catch (Exception $e) {
 				throw new InvalidRequestArgException($argname, $sic[$argname], $e->getMessage());
 			}
 
-			if ($date_freq->getTimestamp() == $date_orig->getTimestamp()) {
-				throw new InvalidRequestArgException($argname, $sic[$argname], 'does not modify date: ' . $date_orig->getTimestamp() . ' v ' . $date_freq->getTimestamp());
+			$stamp_orig = $date_orig->getTimestamp();
+			$stamp_freq = $date_freq->getTimestamp();
+
+			if ($stamp_freq == $stamp_orig) {
+				throw new InvalidRequestArgException($argname, $sic[$argname], 'does not modify date: ' . $stamp_freq . ' = ' . $stamp_orig);
+			} else if ($stamp_freq < $stamp_orig) {
+				throw new InvalidRequestArgException($argname, $sic[$argname], 'goes backwards: ' . $stamp_freq . ' < ' . $stamp_orig);
 			}
 
 			return $sic[$argname];
@@ -215,12 +225,13 @@ function getTasksNextDue($freq, $date = null) {
 	$date_freq = clone($date_orig);
 
 	try {
-		if (!empty($freq)) {
-			if ($freq[0] == 'P') {
-				$freq = new DateInterval($freq);
+		$freq = parseTasksFrequency($freq);
+		if (!empty($freq['data'])) {
+			if ($freq['data'][0] == 'P') {
+				$freq = new DateInterval($freq['data']);
 				$date_freq = $date_freq->add($freq);
 			} else {
-				$date_freq = $date_freq->modify($freq);
+				$date_freq = $date_freq->modify($freq['data']);
 			}
 		}
 	} catch (Exception $e) {
@@ -308,6 +319,27 @@ function getTasksItems ($object_id, $include_completed = false)
 	return $result->fetchAll (PDO::FETCH_ASSOC);
 }
 
+function parseTasksFrequency($frequency) {
+	$label = '';
+	$data  = '';
+
+	if (preg_match('~(?<label>[^()]+)(\((?<data>.*)\))~', $frequency, $matches)) {
+		if (isset($matches['data'])) {
+			$label = trim($matches['label']);
+			$data = trim($matches['data']);
+		}
+	}
+
+	if (empty($data)) {
+		$data = $frequency;
+	}
+
+	if (empty($label)) {
+		$label = 'unlabelled';
+	}
+	return array('label' => $label, 'data' => $data);
+}
+
 function getTasksFrequencyList() {
 	return "<datalist id='frequencyList'>
 			<option value='daily (tomorrow)'>
@@ -335,8 +367,8 @@ function getTasksDefinitions ()
 	$result = usePreparedSelectBlade
 	(
 		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`frequency`, TD.`enabled`, ' .
-		'TD.`mode`, TD.`processed_time`, TD.`created_time`, TD.`object_id`, ' .
-		'O.`name` AS `object_name`, COUNT(TI.`id`) AS num_items ' .
+		'TD.`mode`, TD.`processed_time`, TD.`created_time`,TD.`start_time`, ' .
+		'TD.`object_id`, O.`name` AS `object_name`, COUNT(TI.`id`) AS num_items ' .
 		'FROM `TasksDefinition` AS TD ' .
 		'LEFT JOIN `TasksItem` AS TI ON TD.`id` = TI.`definition_id` ' .
 		'LEFT JOIN `Object` AS O ON O.`id` = TD.`object_id`' .
@@ -353,6 +385,7 @@ function renderTasksDefinitions ()
 		array ('th_text' => 'description', 'row_key' => 'description'),
 		array ('th_text' => 'enabled',     'row_key' => 'enabled'),
 		array ('th_text' => 'mode',        'row_key' => 'mode'),
+		array ('th_text' => 'start_time',  'row_key' => 'start_time'),
 		array ('th_text' => 'freqency',    'row_key' => 'frequency'),
 		array ('th_text' => 'object',      'row_key' => 'object_name'),
 		array ('th_text' => 'task(s)',     'row_key' => 'num_items', 'td_class' => 'tdright'),
@@ -369,6 +402,19 @@ function renderTasksDefinitionsEditor ()
 {
 	echo getTasksFrequencyList();
 
+	echo "<script>$(function() {
+		$.getScript('https://cdn.jsdelivr.net/npm/flatpickr', function() {
+			$('.tasks-datetime').flatpickr({
+				enableTime: true,
+				dateFormat: 'Y-m-d H:i:S',
+				altInput: true,
+				altFormat: 'M j, Y H:i:S',
+				minDate: 'today',
+				time_24hr: true,
+			});
+		});
+	});</script>";
+
 	function printNewItemTR ()
 	{
 		printOpFormIntro ('add');
@@ -378,6 +424,7 @@ function renderTasksDefinitionsEditor ()
 			'<td><input type=text size=48 name=description></td>' .
 			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled', 'id' => 'enabled'), 'yes') . '</td>' .
 			'<td>' . getSelect (getTasksModes(), array ('name' => 'mode', 'id' => 'mode'), 'due') . '</td>' .
+			'<td><input type=text size=24 name=start_time class="tasks-datetime"></td>' .
 			'<td><input type=text size=24 name=frequency list="frequencyList"></td>' .
 			'<td>' . getSelect (getTasksObjects(), array('name' => 'object_id', 'id' => 'object_id'), 0, FALSE) . '</td>' .
 			'<td>&nbsp;</td>' .
@@ -392,6 +439,7 @@ function renderTasksDefinitionsEditor ()
 		'<th>description</th>' .
 		'<th>enabled</th>' .
 		'<th>mode</th>' .
+		'<th>start_time</th>' .
 		'<th>frequency</th>' .
 		'<th>object</th>' .
 		'<th>item(s)</th>' .
@@ -412,6 +460,10 @@ function renderTasksDefinitionsEditor ()
 		echo '<td><input type=text size=48 name=description value="' . htmlspecialchars ($definition['description'], ENT_QUOTES, 'UTF-8') . '"></td>';
 		echo '<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled', 'id' => 'enabled'), $definition['enabled']) . '</td>';
 		echo '<td>' . getSelect (getTasksModes(), array ('name' => 'mode', 'id' => 'mode'), $definition['mode']) . '</td>';
+		if ($definition['num_items'])
+			echo "<td>{$definition['start_time']}</td>";
+		else
+			echo "<td><input type=text size=24 name=start_time class='tasks-datetime' value='{$definition['start_time']}'></td>";
 		echo '<td><input type=text size=24 name=frequency list="frequencyList" value="' . htmlspecialchars ($definition['frequency'], ENT_QUOTES, 'UTF-8') . '"></td>';
 		echo '<td>' . getSelect (getTasksObjects(), array('name' => 'object_id', 'id' => 'object_id'), $definition['object_id'], FALSE) . '</td>';
 		echo "<td class=tdright>${definition['num_items']}</td>";
@@ -556,18 +608,20 @@ function addTasksDefinition () {
 		plugin_tasks_assert ('description', 'string'),
 		plugin_tasks_assert ('enabled', 'enum/yesno'),
 		plugin_tasks_assert ('frequency', 'frequency'),
+		plugin_tasks_assert ('start_time', 'datetime'),
 		plugin_tasks_assert ('mode', 'enum/mode'),
 		plugin_tasks_assert ('object_id', 'uint0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
 
-function insertTasksDefinition($name, $description, $enabled, $frequency, $mode, $object_id) {
+function insertTasksDefinition($name, $description, $enabled, $frequency, $start_time, $mode, $object_id) {
 	$fields = array(
 		'name' => $name,
 		'description' => $description,
 		'enabled' => $enabled,
 		'frequency' => $frequency,
+		'start_time' => $start_time,
 		'mode' => $mode,
 		'object_id' => $object_id,
 	);
@@ -724,12 +778,13 @@ function ensureTasksDefinitionNextDue($id) {
 		$last = $last_select->fetch (PDO::FETCH_ASSOC);
 
 		if (!isset($last['completed']) || $last['completed'] == 'yes') {
-			$base = $definition['processed_time'] ? $definition['processed_time'] : $definition['created_time'];
+			$base = $definition['start_time'] ? $definition['start_time'] : $definition['created_time'];
 			if (isset($last['created_time'])) {
 				$base = $last['created_time'];
+				$next = getTasksNextDue($definition['frequency'], new DateTime($base));
+			} else {
+				$next = new DateTime($base);
 			}
-
-			$next = getTasksNextDue($definition['frequency'], new DateTime($base));
 
 			/*
 			echo "PT: " . $definition['processed_time'] . "\n";
