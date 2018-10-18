@@ -307,6 +307,7 @@ function getTasksItems ($object_id, $include_completed = false)
 		'TD.`frequency` ' .
 		'FROM `TasksItem` AS TI ' .
 		'INNER JOIN `TasksDefinition` AS TD ON TD.`id` = TI.`definition_id` ' .
+		'    AND (TD.`enabled` = "yes" OR TI.`completed` = "no") ' .
 		'LEFT JOIN `Object` O ON O.id = TI.`object_id` ';
 
 	$result = usePreparedSelectBlade
@@ -409,7 +410,6 @@ function renderTasksDefinitionsEditor ()
 				dateFormat: 'Y-m-d H:i:S',
 				altInput: true,
 				altFormat: 'M j, Y H:i:S',
-				minDate: 'today',
 				time_24hr: true,
 			});
 		});
