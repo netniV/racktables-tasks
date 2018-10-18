@@ -748,9 +748,11 @@ function updateTasksItem($id, $completed, $notes) {
 			$fields['completed_time'] = date('Y-m-d H:i:s');
 			$fields['user_name'] = $remote_username;
 
+			/*
 			if (empty($fields['notes'])) {
 				throw new RTDatabaseError('Cannot complete, no notes added');
 			}
+			*/
 		}
 
 		usePreparedUpdateBlade
