@@ -228,11 +228,14 @@ function getTasksNextDue($freq, $date = null) {
 	try {
 		$freq = parseTasksFrequency($freq);
 		if (!empty($freq['data'])) {
-			if ($freq['data'][0] == 'P') {
-				$freq = new DateInterval($freq['data']);
-				$date_freq = $date_freq->add($freq);
-			} else {
-				$date_freq = $date_freq->modify($freq['data']);
+			$items = explode(';', $freq['data']);
+			foreach ($items as $item) {
+				if ($item[0] == 'P') {
+					$interval = new DateInterval($item);
+					$date_freq = $date_freq->add($interval);
+				} else {
+					$date_freq = $date_freq->modify($item);
+				}
 			}
 		}
 	} catch (Exception $e) {
