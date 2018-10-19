@@ -10,6 +10,7 @@ storage and creation of tasks.
 Install this plugin in the normal method for RackTables plugins.
 
 ## Definitions
+
 To create a definition, you can either use the top `Tasks` link, or via
 `Configuration` -> `TasksDefinitions`.  Once a definition has tasks associated
 to it, you can not delete it but you can disable it.
@@ -24,27 +25,29 @@ When a TasksDefinition is disabled, any outstanding tasks are automatically
 closed by the system and the note is replaced with a comment to that effect.
 
 ## Next Due
+
 When using the Next Due mode, no additional program is needed only the name,
-start_time and frequency are required.  When a TasksDefinition is enabled, any
+start\_time and frequency are required.  When a TasksDefinition is enabled, any
 time the definition is updated or the outstanding TasksItem is completed, a new
 task is created.
 
-The new TasksItem's created_time will be set to either the start_time or the
-previous TasksItem's created_time incremented by the frequency.
+The new TasksItem's created\_time will be set to either the start\_time or the
+previous TasksItem's created\_time incremented by the frequency.
 
 If the completing TasksItem's definition is disabled, no new TasksItem is
 created.
 
 ## Scheduled mode
+
 To enable scheduled mode, requires the use of a background cli program which is
 in the plugin folder called `schedule.php`.  When this is run, it will search
 for all TasksDefinition's that are outstanding and are flagged as being
 Scheduled.
 
-To be defined as outstanding, either the processed_time, or if not defined the
-start_time, is compared against the current date.  If a TasksDefinition is
+To be defined as outstanding, either the processed\_time, or if not defined the
+start\_time, is compared against the current date.  If a TasksDefinition is
 outstanding, a new TasksItem is created before updating the TasksDefinition's
-processed_time.
+processed\_time.
 
 If there is an error whilst creating or updating either record, both records are
 rolled back to their original state.
@@ -74,7 +77,7 @@ The field must be entered in one of the following styles:
   - *interval format*
 
      An interval format is the PHP term for specifying date/time intervals for more
-     information on them, please see [PHP's interval_spec](http://php.net/manual/en/dateinterval.construct.php)
+     information on them, please see [PHP's interval\_spec](http://php.net/manual/en/dateinterval.construct.php)
 
 - _**label (format)**_
 
