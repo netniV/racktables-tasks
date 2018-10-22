@@ -64,6 +64,19 @@ CREATE TABLE IF NOT EXISTS `TasksFrequency` (
 ) ENGINE=InnoDB");
 
 	$dbxlink->query ("
+INSERT INTO TasksFrequency (name, format) VALUES ('Daily','tomorrow');
+INSERT INTO TasksFrequency (name, format) VALUES ('Daily @ Noon','tomorrow 12:00');
+INSERT INTO TasksFrequency (name, format) VALUES ('First Tuesday','first tuesday of next month');
+INSERT INTO TasksFrequency (name, format) VALUES ('Last Thursday','last thursday of next month');
+INSERT INTO TasksFrequency (name, format) VALUES ('Every Friday','next friday');
+INSERT INTO TasksFrequency (name, format) VALUES ('Every Monday','next monday');
+INSERT INTO TasksFrequency (name, format) VALUES ('Every Wednesday','next wednesday');
+INSERT INTO TasksFrequency (name, format) VALUES ('Quarterly','first day of this month, +3 months midnight');
+INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 15th','first day of this month; next month; +15 days');
+INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 1st','first day of this month, next month');
+INSERT INTO TasksFrequency (name, format) VALUES ('Semi-Annual 1st','first day of this month, +6 months midnight');
+");
+	$dbxlink->query ("
 CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `name` char(64) DEFAULT NULL,
