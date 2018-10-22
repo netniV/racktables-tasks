@@ -1,7 +1,39 @@
 <?php
 
+function renderTasksItemsGlobals () {
+	static $isRendered = false;
+
+	if (!$isRendered) {
+		$isRendered = true;
+		echo "<style>
+	.pastdue, .overdue, .late {
+		color: white;
+	}
+
+	.pastdue a, .overdue a, .late a {
+		color: white;
+	}
+
+	.pastdue {
+		background: yellow;
+	}
+
+	.overdue {
+		background: orange;
+	}
+
+	.late {
+		background: red;
+	}
+</style>";
+
+	}
+}
+
 function renderTasksItems ($object_id)
 {
+	renderTasksItemsGlobals ();
+
 	if (!isset($object_id)) {
 		if (isset($_REQUEST['object_id'])) {
 			$object_id = genericAssertion('object_id', 'uint');
@@ -75,6 +107,8 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 {
 	global $page, $tab, $remote_username;
 
+	renderTasksItemsGlobals ();
+
 	if (isset($_REQUEST['task_item_id'])) {
 		$task_item_id = intval(genericAssertion ('task_item_id', 'uint'));
 	}
@@ -134,11 +168,11 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 			}
 
 			if ($count > 2) {
-				$color = 'border: 1px solid #cc3300';
+				$color = 'late';
 			} else if ($count > 1) {
-				$color = 'border: 1px solid orange';
+				$color = 'overdue';
 			} else {
-				$color = 'border: 1px solid yellow';
+				$color = 'pastdue';
 			}
 		}
 	}
@@ -202,5 +236,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if ($isVertical) {
 		echo "</table></form>\n";
 		finishPortlet ();
+	} else {
+		echo "</tr>";
 	}
 }

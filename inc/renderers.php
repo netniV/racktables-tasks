@@ -4,7 +4,7 @@ foreach(glob(__DIR__ . '/renderers/tasks*.php') as $filename) {
 	require_once($filename);
 }
 
-function renderTasksEditField($isViewOnly, $isVertical, $label, $entityView, $entityEdit, $columns = 0, $style = '') {
+function renderTasksEditField($isViewOnly, $isVertical, $label, $entityView, $entityEdit, $columns = 0, $class = '', $style = '') {
 	if ($isVertical) {
 		if (!empty($label)) {
 			$label .= ':';
@@ -13,7 +13,7 @@ function renderTasksEditField($isViewOnly, $isVertical, $label, $entityView, $en
 	}
 
 	$colSpan = ($columns > 0) ? ' colspan="' .  $columns . '"' : '';
-	echo '<td' . $colSpan . ' class="tdleft" ' . (empty($style) ? '' : "style='$style' ") . '>' . ($isViewOnly ? $entityView : $entityEdit) . '</td>';
+	echo '<td' . $colSpan . ' class="tdleft ' . $class . '" ' . (empty($style) ? '' : "style='$style' ") . '>' . ($isViewOnly ? $entityView : $entityEdit) . '</td>';
 
 	if ($isVertical) {
 		echo '</tr>';

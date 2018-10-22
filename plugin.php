@@ -234,12 +234,13 @@ function plugin_tasks_decodeTitle($no) {
 	}
 
 	if (!empty($title)) {
-		stopTabPropagation ();
+		stopHookPropagation ();
+		error_log('decodeTitle("' . $no . '"): returned ' . json_encode($title));
 		return $title;
 	}
 
-	if (!in_array($no, array('object','tasksdefinition','ipv4space'))) {
-		error_log('decodeTitle: unhandled ' . $no);
+	if (!in_array($no, array('object','ipv4space'))) {
+		error_log('decodeTitle("' . $no . '"): unhandled');
 	}
 	return $no;
 }
