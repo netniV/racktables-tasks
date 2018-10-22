@@ -1,5 +1,38 @@
 <?php
 
+function assertTasksParam ($argname, $argtype) {
+	global $sic;
+	switch ($argtype) {
+		case 'frequency':
+			try {
+				$freq = parseTasksFrequency($sic[$argname]);
+				$date_orig = new DateTime();
+				$date_freq = clone $date_orig;
+
+				$date_freq = getTasksNextDue($freq['data'], $date_orig);
+			} catch (Exception $e) {
+				throw new InvalidRequestArgException($argname, $sic[$argname], $e->getMessage());
+			}
+
+			$stamp_orig = $date_orig->getTimestamp();
+			$stamp_freq = $date_freq->getTimestamp();
+
+			if ($stamp_freq == $stamp_orig) {
+				throw new InvalidRequestArgException($argname, $sic[$argname], 'does not modify date: ' . $stamp_freq . ' = ' . $stamp_orig);
+			} else if ($stamp_freq < $stamp_orig) {
+				throw new InvalidRequestArgException($argname, $sic[$argname], 'goes backwards: ' . $stamp_freq . ' < ' . $stamp_orig);
+			}
+
+			return $sic[$argname];
+		case 'enum/mode':
+			if (! array_key_exists ($sic[$argname], getTasksModes()))
+				throw new InvalidRequestArgException ($argname, $sic[$argname], 'Unknown value');
+			return $sic[$argname];
+		default:
+			return genericAssertion($argname, $argtype);
+	}
+}
+
 function getTasksDiffValue($date1, $date2) {
 	return $date2->diff($date1)->format('%a');;
 }

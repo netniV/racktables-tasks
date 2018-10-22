@@ -1,5 +1,7 @@
 <?php
 
+$initTasksNavigation[] = 'initTasksNavigationTasks';
+
 function initTasksNavigationTasks() {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 

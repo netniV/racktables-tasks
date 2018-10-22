@@ -30,15 +30,15 @@ function renderTasksItems ($object_id)
 			startPortlet ('Tasks Outstanding');
 		}
 
-		echo '<table cellspacing=0 cellpadding=5 align=center class=widetable border="1">';
+		echo '<table cellspacing=0 cellpadding=5 align=center class=widetable>';
 		echo '<tr><th>&nbsp;</th>';
 
 		if ($isTasksPage) {
 			echo '<th>object</th>';
 		}
 
-		echo '<th>name</th>' .
-			'<th>description</th>' .
+		echo '<th>task</th>' .
+			'<th>definition</th>' .
 			'<th>mode</th>' .
 			'<th>created/due time</th>' .
 			'<th>completed</th>' .
@@ -73,7 +73,7 @@ function triggerTasksItems ()
 
 function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = true)
 {
-	global $page, $tab;
+	global $page, $tab, $remote_username;
 
 	if (isset($_REQUEST['task_item_id'])) {
 		$task_item_id = intval(genericAssertion ('task_item_id', 'uint'));
@@ -134,11 +134,11 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 			}
 
 			if ($count > 2) {
-				$color = 'red';
+				$color = 'border: 1px solid #cc3300';
 			} else if ($count > 1) {
-				$color = 'orange';
+				$color = 'border: 1px solid orange';
 			} else {
-				$color = 'yellow';
+				$color = 'border: 1px solid yellow';
 			}
 		}
 	}
@@ -152,10 +152,10 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	$label = mkA (stringForLabel ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
 	$input = stringForLabel ($task['name']);
-	renderTasksEditField ($isViewTab, $isVertical, 'name', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, 'task', $label, $input);
 
 	$label = mkA (stringForLabel ($task['description']), 'tasksdefinition', $task['definition_id']);
-	renderTasksEditField ($isViewTab, $isVertical, 'description', $label, $label);
+	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
 
 	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
 	renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $label);
@@ -166,13 +166,15 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$isComplete = $task['completed'] == 'yes';
 	$isEditable = !($isComplete || $isViewTab);
 
-	echo $isComplete ? "COMPLETED" : "INCOMPLETE";
-	echo " ";
-	echo $isViewTab ? "VIEW" : "EDIT";
-	echo " ";
-	echo $isVertical ? "VERTICAL" : "HORIZONTAL";
-	echo " ";
-	echo $isEditable ? "EDITABLE" : "READONLY";
+	if ($remote_username == 'admin') {
+		echo $isComplete ? "COMPLETED" : "INCOMPLETE";
+		echo " ";
+		echo $isViewTab ? "VIEW" : "EDIT";
+		echo " ";
+		echo $isVertical ? "VERTICAL" : "HORIZONTAL";
+		echo " ";
+		echo $isEditable ? "EDITABLE" : "READONLY";
+	}
 
 	$label = htmlspecialchars ($task['completed'], ENT_QUOTES, 'UTF-8');
 	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'completed', 'id' => 'completed'), $task['completed']);
@@ -180,7 +182,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	if (!$isComplete) {
 		$label = mkA (stringForLabel ($task['frequency_name']), 'tasksfrequency', $task['frequency_id']) . ' ' . $incomplete;
-		renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $label, 2);
+		renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $label, 2, $color);
 	} else {
 		$label = htmlspecialchars ($task['completed_time'], ENT_QUOTES, 'UTF-8');
 		renderTasksEditField ($isViewTab, $isVertical, 'completed', $label, $label);

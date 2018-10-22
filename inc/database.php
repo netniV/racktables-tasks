@@ -23,15 +23,26 @@ function getTasksFrequencyEntities () {
 	return reduceSubarraysToColumn (reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
 }
 
-function getTasksFrequencies () {
+function getTasksFrequencies ($frequency_id = 0) {
+	$where = '';
+	$params = array();
+
+	if ($frequency_id) {
+		$where = 'WHERE TF.`id` = ? ';
+		$params[] = $frequency_id;
+	}
+
+
 	$result = usePreparedSelectBlade
 	(
 		'SELECT TF.`id`, TF.`name`, TF.`format`, ' .
 		'COUNT(TD.`id`) AS num_items ' .
 		'FROM `TasksFrequency` AS TF ' .
 		'LEFT JOIN `TasksDefinition` AS TD ON TF.`id` = TD.`frequency_id` ' .
+		$where .
 		'GROUP BY `id`, `name`, `format` ' .
-		'ORDER BY `name`'
+		'ORDER BY `name` ',
+		$params
 	);
 
 	return reindexById ($result->fetchAll (PDO::FETCH_ASSOC));
@@ -69,19 +80,29 @@ function updateTasksFrequency ($id, $name, $format) {
 
 /*** TASKS DEFINITIONS ***/
 
-function getTasksDefinitions ()
+function getTasksDefinitions ($definition_id = 0)
 {
+	$where = '';
+	$params = array();
+
+	if ($definition_id) {
+		$where = 'WHERE TD.`id` = ? ';
+		$params[] = $definition_id;
+	}
+
 	$result = usePreparedSelectBlade
 	(
 		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`enabled`, ' .
 		'TD.`mode`, TD.`processed_time`, TD.`created_time`,TD.`start_time`, ' .
 		'TD.`object_id`, O.`name` AS `object_name`, COUNT(TI.`id`) AS num_items, ' .
-		'TF.`name` AS frequency_name, TF.`id` AS frequency_id ' .
+		'TF.`name` AS frequency_name, TF.`id` AS frequency_id, TF.`format` AS frequency_format ' .
 		'FROM `TasksDefinition` AS TD ' .
 		'JOIN `TasksFrequency` AS TF ON TF.`id` = TD.`frequency_id` ' .
 		'LEFT JOIN `TasksItem` AS TI ON TD.`id` = TI.`definition_id` ' .
-		'LEFT JOIN `Object` AS O ON O.`id` = TD.`object_id`' .
-		'GROUP BY id'
+		'LEFT JOIN `Object` AS O ON O.`id` = TD.`object_id` ' .
+		$where .
+		'GROUP BY id',
+		$params
 	);
 	return reindexById ($result->fetchAll (PDO::FETCH_ASSOC));
 }
@@ -144,8 +165,11 @@ function updateTasksDefinitionProcessedTime ($id, $date) {
 }
 
 function ensureTasksDefinitionNextDue ($id) {
-	$definition_select = usePreparedSelectBlade ("SELECT * FROM TasksDefinition WHERE id = ?", array($id));
-	$definition = $definition_select->fetch (PDO::FETCH_ASSOC);
+	$definition = getTasksDefinitions ($id);
+	if ($definition) {
+		$definition = reset($definition);
+	}
+
 	if ($definition && $definition['enabled'] == 'yes' && $definition['mode'] == 'due') {
 		$last_select = usePreparedSelectBlade ("SELECT id, completed, created_time FROM TasksItem WHERE definition_id = ? ORDER BY created_time DESC, id DESC LIMIT 1", array($id));
 		$last = $last_select->fetch (PDO::FETCH_ASSOC);
@@ -154,7 +178,7 @@ function ensureTasksDefinitionNextDue ($id) {
 			$base = $definition['start_time'] ? $definition['start_time'] : $definition['created_time'];
 			if (isset($last['created_time'])) {
 				$base = $last['created_time'];
-				$next = getTasksNextDue($definition['frequency'], new DateTime($base));
+				$next = getTasksNextDue($definition['frequency_format'], new DateTime($base));
 			} else {
 				$next = new DateTime($base);
 			}
@@ -193,7 +217,7 @@ function getTasksItems ($object_id, $include_completed = false, $task_id = 0)
 		'TF.`id` AS `frequency_id`, TF.`name` AS `frequency_name`, TF.`format` AS `frequency_format` ' .
 		'FROM `TasksItem` AS TI ' .
 		'INNER JOIN `TasksDefinition` AS TD ON TD.`id` = TI.`definition_id` ' .
-		'    AND (TD.`enabled` = "yes" OR TI.`completed` = "no") ' .
+		'    AND (TD.`enabled` = "yes") ' .
 		'INNER JOIN `TasksFrequency` AS TF ON TF.`id` = TD.`frequency_id` ' .
 		'LEFT JOIN `Object` O ON O.id = TI.`object_id` ';
 
@@ -235,7 +259,7 @@ function insertTasksItem ($definition_id, $mode, $name, $description, $object_id
 function updateTasksItem ($id, $completed, $notes, $user = '') {
 
 	global $remote_username;
-
+	$ret    = false;
 	$result = usePreparedSelectBlade ("
 		SELECT TI.`id`, TI.`object_id`, TI.`created_time`, TI.`completed`,
 		TI.`definition_id`, TD.`enabled`, TD.`mode`
@@ -278,7 +302,13 @@ function updateTasksItem ($id, $completed, $notes, $user = '') {
 		if ($row['mode'] == 'due') {
 			ensureTasksDefinitionNextDue($row['definition_id']);
 		}
+
+		if ($completed == 'yes') {
+			$ret = buildRedirectURL ('tasksitem', 'default', array('task_item_id' => $id));
+		}
 	}
+	error_log("updateTasksItem($id) : returns $ret");
+	return $ret;
 }
 
 function disableTasksItemsOutstanding ($id) {

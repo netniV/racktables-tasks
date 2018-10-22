@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__ . '/inc/database.php');
 require_once(__DIR__ . '/inc/functions.php');
+
+/* Dynamic section loaders */
 require_once(__DIR__ . '/inc/navigation.php');
 require_once(__DIR__ . '/inc/renderers.php');
 
@@ -19,15 +21,11 @@ function plugin_tasks_init ()
 {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 
-	initTasksNavigationTasks();
-	initTasksNavigationTasksDefinition();
-	initTasksNavigationTasksFrequency();
-	initTasksNavigationTasksItem();
+	initTasksNavigation();
 
 	registerHook ('resetObject_hook', 'plugin_tasks_resetObject');
 	registerHook ('resetUIConfig_hook', 'plugin_tasks_resetUIConfig');
-	registerHook ('modifyEntitySummary', 'plugin_tasks_modifyEntitySummary');
-	registerHook ('dynamic_title_decoder', 'plugin_tasks_decodeTitle');
+	registerHook ('dynamic_title_decoder', 'plugin_tasks_decodeTitle', 'before');
 	addCSS("
 	@import url('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css');
 	@import url('https://npmcdn.com/flatpickr/dist/themes/material_blue.css');
@@ -42,37 +40,15 @@ function plugin_tasks_init ()
 	);
 }
 
-function plugin_tasks_assert ($argname, $argtype) {
-	global $sic;
-	switch ($argtype) {
-		case 'frequency':
-			try {
-				$freq = parseTasksFrequency($sic[$argname]);
-				$date_orig = new DateTime();
-				$date_freq = clone $date_orig;
+function plugin_tasks_enable ()
+{
+	// Add tasks to top tabs
+	$dbxlink->query("UPDATE `Config` SET varvalue=CONCAT(varvalue,',tasks')
+		WHERE varname = 'QUICK_LINK_PAGES'
+		AND varvalue NOT LIKE '%,tasks'
+		AND varvalue NOT LIKE '%,tasks,%';");
 
-				$date_freq = getTasksNextDue($freq['data'], $date_orig);
-			} catch (Exception $e) {
-				throw new InvalidRequestArgException($argname, $sic[$argname], $e->getMessage());
-			}
-
-			$stamp_orig = $date_orig->getTimestamp();
-			$stamp_freq = $date_freq->getTimestamp();
-
-			if ($stamp_freq == $stamp_orig) {
-				throw new InvalidRequestArgException($argname, $sic[$argname], 'does not modify date: ' . $stamp_freq . ' = ' . $stamp_orig);
-			} else if ($stamp_freq < $stamp_orig) {
-				throw new InvalidRequestArgException($argname, $sic[$argname], 'goes backwards: ' . $stamp_freq . ' < ' . $stamp_orig);
-			}
-
-			return $sic[$argname];
-		case 'enum/mode':
-			if (! array_key_exists ($sic[$argname], getTasksModes()))
-				throw new InvalidRequestArgException ($argname, $sic[$argname], 'Unknown value');
-			return $sic[$argname];
-		default:
-			return genericAssertion($argname, $argtype);
-	}
+	return TRUE;
 }
 
 function plugin_tasks_install ()
@@ -128,16 +104,21 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
 
 //SELECT * FROM `Config` WHERE varname = 'QUICK_LINK_PAGES' AND varvalue NOT LIKE '%,tasks' and varvalue NOT LIKE '%,tasks,%';
 
-	// Add tasks to top tabs
-	$dbxlink->query("UPDATE `Config` SET varvalue=CONCAT(varvalue,',tasks')
-		WHERE varname = 'QUICK_LINK_PAGES'
-		AND varvalue NOT LIKE '%,tasks'
-		AND varvalue NOT LIKE '%,tasks,%';");
-
 	addConfigVar ('TASKS_LISTSRC', 'false', 'string', 'yes', 'no', 'no', 'List of object with Tasks');
 //	addConfigVar ('CACTI_RRA_ID', '1', 'uint', 'no', 'no', 'yes', 'RRA ID for Tasks graphs displayed in RackTables');
 
+	plugin_tasks_enable();
+
 	return TRUE;
+}
+
+function plugin_tasks_disable ()
+{
+	// Add tasks to top tabs
+	$dbxlink->query("UPDATE `Config` SET varvalue=REPLACE(varvalue,',tasks','')
+		WHERE varname = 'QUICK_LINK_PAGES'
+		AND varvalue LIKE '%,tasks'
+		AND varvalue LIKE '%,tasks,%';");
 }
 
 function plugin_tasks_uninstall ()
@@ -149,11 +130,8 @@ function plugin_tasks_uninstall ()
 	$dbxlink->query	("DROP TABLE `TasksItem`");
 	$dbxlink->query	("DROP TABLE `TasksDefinition`");
 
-	// Add tasks to top tabs
-	$dbxlink->query("UPDATE `Config` SET varvalue=REPLACE(varvalue,',tasks','')
-		WHERE varname = 'QUICK_LINK_PAGES'
-		AND varvalue LIKE '%,tasks'
-		AND varvalue LIKE '%,tasks,%';");
+	plugin_tasks_disable();
+
 	return TRUE;
 }
 
@@ -173,10 +151,10 @@ function plugin_tasks_dispatchImageRequest ()
 		$tabno = 'tasks';
 		fixContext ();
 		assertPermission ();
-		$task_id = plugin_tasks_assert ('graph_id', 'natural');
+		$task_id = assertTasksParam ('graph_id', 'natural');
 		if (! array_key_exists ($task_id, getTasksItemsForObject (getBypassValue())))
 			throw new InvalidRequestArgException ('graph_id', $task_id);
-		proxyTasksRequest (plugin_tasks_assert ('definition_id', 'natural'), $task_id);
+		proxyTasksRequest (assertTasksParam ('definition_id', 'natural'), $task_id);
 	}
 	return TRUE;
 }
@@ -194,13 +172,61 @@ function plugin_tasks_resetUIConfig ()
 //	setConfigVar ('CACTI_RRA_ID', '1');
 }
 
-function plugin_tasks_modifyEntitySummary ($cell, $values) {
-	return $values;
-}
+function plugin_tasks_decodeTitle($no) {
+	global $page, $tab;
 
-function plugin_tasks_decodeTitle($tab) {
-	if ($tab == 'tasks:definitionstab') {
-		return array('name' => 'Tasks', 'params' => array('page' => 'tasks', 'tab' => 'definitions'));
+	$title = array();
+	if ($no == 'tasks:definitionstab') {
+		$title = array(
+			'name' => 'Tasks',
+			'params' => array(
+				'page' => 'tasks',
+				'tab' => 'definitions'
+			)
+		);
+		error_log("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));
 	}
-	return array('name' => $tab);
+
+	if ($no == 'object:tasks') {
+		$obj = false;
+		$object_id =0;
+		if (isset($_REQUEST['object_id'])) {
+			$object_id = $_REQUEST['object_id'];
+			$obj = spotEntity('object', $object_id);
+		} elseif (isset($_REQUEST['task_item_id'])) {
+			$obj = getTasksItems (0, true, $_REQUEST['task_item_id']);
+			if ($obj) {
+				$obj = reset($obj);
+				$obj['dname'] = $obj['object_name'];
+				$object_id = $obj['object_id'];
+			}
+		} elseif (isset($_REQUEST['task_definition_id'])) {
+			$obj = getTasksDefinitions ($_REQUEST['task_definition_id']);
+			if ($obj) {
+				$obj = reset($obj);
+				$obj['dname'] = $obj['object_name'];
+				$object_id = $obj['object_id'];
+			}
+		}
+
+		if ($obj) {
+			$title = array(
+				'name'   => $obj['dname'],
+				'params' => array(
+					'page' => 'object',
+					'object_id' => $object_id
+				)
+			);				
+		}
+	}
+
+	if (!empty($title)) {
+		stopTabPropagation ();
+		return $title;
+	}
+
+	if (!in_array($no, array('object','tasksdefinition','ipv4space'))) {
+		error_log('decodeTitle: unhandled ' . $no);
+	}
+	return $no;
 }

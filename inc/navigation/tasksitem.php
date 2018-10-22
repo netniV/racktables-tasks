@@ -1,5 +1,7 @@
 <?php
 
+$initTasksNavigation[] = 'initTasksNavigationTasksItem';
+
 function initTasksNavigationTasksItem() {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger, $tabhandlers_stack;
 
@@ -7,18 +9,19 @@ function initTasksNavigationTasksItem() {
 	$page   ['tasksitem']['title']       = 'Task Item';
 	$page   ['tasksitem']['bypass']      = 'task_item_id';
 	$page   ['tasksitem']['bypass_type'] = 'natural';
-	$page   ['tasksitem']['bypass_tabs'] = array('default');
+	$page   ['tasksitem']['bypass_tabs'] = array('default', 'edit');
 	$tab    ['tasksitem']['default'] = 'View';
 	$tab    ['tasksitem']['edit']    = 'Properties';
 
 	registerTabHandler ('tasksitem', 'default', 'renderTasksItem');
 	registerTabHandler ('tasksitem', 'edit',    'renderTasksItem');
+	registerOpHandler  ('tasksitem', 'edit', 'upd', 'updTasksItem');
 
 	/* Tasks in Object */
 	$tab    ['object']['tasksitem'] = 'Tasks';
 	$trigger['object']['tasksitem'] = 'triggerTasksItems';
 
-	registerTabHandler ('object', 'default',   'renderTasksItems');
+	registerTabHandler ('object', 'default',   'renderTasksItems', 'before');
 	registerTabHandler ('object', 'tasksitem', 'renderTasksItems');
 
 	//registerOpHandler ('object', 'tasksitem', 'add', 'addTasksItem');
@@ -31,11 +34,12 @@ function initTasksNavigationTasksItem() {
 function updTasksItem () {
 
 	setFuncMessages (__FUNCTION__, array ('OK' => 51));
-	updateTasksItem
+	$ret = updateTasksItem
 	(
-		plugin_tasks_assert ('id', 'uint'),
-		plugin_tasks_assert ('completed', 'enum/yesno'),
-		plugin_tasks_assert ('notes', 'string0')
+		assertTasksParam ('id', 'uint'),
+		assertTasksParam ('completed', 'enum/yesno'),
+		assertTasksParam ('notes', 'string0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
+	return $ret;
 }

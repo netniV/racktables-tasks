@@ -1,5 +1,7 @@
 <?php
 
+$initTasksNavigation[] = 'initTasksNavigationTasksFrequency';
+
 function initTasksNavigationTasksFrequency () {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 
@@ -44,8 +46,8 @@ function addTasksFrequency () {
 	setFuncMessages (__FUNCTION__, array ('OK' => 51));
 	$id = insertTasksFrequency
 	(
-		plugin_tasks_assert ('name', 'string'),
-		plugin_tasks_assert ('format', 'frequency')
+		assertTasksParam ('name', 'string'),
+		assertTasksParam ('format', 'frequency')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
@@ -55,9 +57,9 @@ function updTasksFrequency () {
 	setFuncMessages (__FUNCTION__, array ('OK' => 51));
 	updateTasksFrequency
 	(
-		plugin_tasks_assert ('id', 'uint'),
-		plugin_tasks_assert ('name', 'string'),
-		plugin_tasks_assert ('frequency', 'frequency')
+		assertTasksParam ('id', 'uint'),
+		assertTasksParam ('name', 'string'),
+		assertTasksParam ('format', 'frequency')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }

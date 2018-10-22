@@ -1,7 +1,9 @@
 <?php
 
+$initTasksNavigation[] = 'initTasksNavigationTasksDefinition';
+
 function initTasksNavigationTasksDefinition() {
-	global $interface_requires, $opspec_list, $page, $tab, $trigger;
+	global $interface_requires, $ophandler, $page, $tab, $trigger;
 
 	$tab ['tasks']['definitions'] = 'Definitions';
 
@@ -42,13 +44,13 @@ function addTasksDefinition () {
 	setFuncMessages (__FUNCTION__, array ('OK' => 51));
 	$id = insertTasksDefinition
 	(
-		plugin_tasks_assert ('name', 'string'),
-		plugin_tasks_assert ('description', 'string'),
-		plugin_tasks_assert ('enabled', 'enum/yesno'),
-		plugin_tasks_assert ('frequency_id', 'uint0'),
-		plugin_tasks_assert ('start_time', 'datetime'),
-		plugin_tasks_assert ('mode', 'enum/mode'),
-		plugin_tasks_assert ('object_id', 'uint0')
+		assertTasksParam ('name', 'string'),
+		assertTasksParam ('description', 'string'),
+		assertTasksParam ('enabled', 'enum/yesno'),
+		assertTasksParam ('frequency_id', 'uint0'),
+		assertTasksParam ('start_time', 'datetime'),
+		assertTasksParam ('mode', 'enum/mode'),
+		assertTasksParam ('object_id', 'uint0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
@@ -58,13 +60,13 @@ function updTasksDefinition () {
 	setFuncMessages (__FUNCTION__, array ('OK' => 51));
 	updateTasksDefinition
 	(
-		plugin_tasks_assert ('id', 'uint'),
-		plugin_tasks_assert ('name', 'string'),
-		plugin_tasks_assert ('description', 'string'),
-		plugin_tasks_assert ('enabled', 'enum/yesno'),
-		plugin_tasks_assert ('frequency_id', 'uint0'),
-		plugin_tasks_assert ('mode', 'enum/mode'),
-		plugin_tasks_assert ('object_id', 'uint0')
+		assertTasksParam ('id', 'uint'),
+		assertTasksParam ('name', 'string'),
+		assertTasksParam ('description', 'string'),
+		assertTasksParam ('enabled', 'enum/yesno'),
+		assertTasksParam ('frequency_id', 'uint0'),
+		assertTasksParam ('mode', 'enum/mode'),
+		assertTasksParam ('object_id', 'uint0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
