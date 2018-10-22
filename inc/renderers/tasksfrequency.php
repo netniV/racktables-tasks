@@ -24,7 +24,7 @@ function renderTasksFrequencies ($object_id)
 
 		foreach ($tasks as $task_id => $task)
 		{
-			renderTasksFrequency ($task_id, false);
+			renderTasksFrequency ($task['id'], false);
 		}
 		echo "</table>\n";
 		finishPortlet ();
@@ -74,7 +74,8 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 	$isComplete = false;
 	$isEditable = !($isComplete || $isViewTab);
 
-	if ($remote_username == 'admin') {
+	if (isTasksDebugUser()) {
+		echo $task['id'] . ' : ';
 		echo $isComplete ? "COMPLETED" : "INCOMPLETE";
 		echo " ";
 		echo $isViewTab ? "VIEW" : "EDIT";
@@ -82,6 +83,7 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 		echo $isVertical ? "VERTICAL" : "HORIZONTAL";
 		echo " ";
 		echo $isEditable ? "EDITABLE" : "READONLY";
+		echo "\n";
 	}
 
 	$label = '&nbsp;';

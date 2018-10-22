@@ -159,3 +159,14 @@ function getTasksFrequencyFormatSuggestionList() {
 	</datalist>";
 }
 
+function isTasksDebugUser() {
+	global $remote_username;
+
+	return ($remote_username == 'netniv' ||	$remote_username == 'admin');
+}
+
+function recordTasksDebug($message) {
+	if (isTasksDebugUser()) {
+		error_log($message);
+	}
+}

@@ -27,7 +27,7 @@ function initTasksNavigationTasksFrequency () {
 	$page['tasksfrequency']['title']       = 'Task Frequency';
 	$page['tasksfrequency']['parent']      = 'tasksfrequencies';
 	$page['tasksfrequency']['bypass']      = 'task_freqeuency_id';
-	$page['tasksfrequency']['bypass_type'] = 'natural';
+	$page['tasksfrequency']['bypass_type'] = 'uint';
 
 	$tab['tasksfrequency']['default'] = 'View';
 	$tab['tasksfrequency']['edit']    = 'Properties';

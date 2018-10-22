@@ -32,11 +32,11 @@ function renderTasksDefinitions ()
 			'<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>' .
 			'<td><input type=text size=24 name=name></td>' .
 			'<td><input type=text size=48 name=description></td>' .
-			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled', 'id' => 'enabled'), 'yes') . '</td>' .
-			'<td>' . getSelect (getTasksModes(), array ('name' => 'mode', 'id' => 'mode'), 'due') . '</td>' .
+			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), 'yes') . '</td>' .
+			'<td>' . getSelect (getTasksModes(), array ('name' => 'mode'), 'due') . '</td>' .
 			'<td><input type=text size=24 name=start_time class="tasks-datetime"></td>' .
-			'<td>' . getSelect (getTasksFrequencyEntities(), array('name' => 'frequency_id', 'id' => 'id'), 0, FALSE) . '</td>' .
-			'<td>' . getSelect (getTasksObjectEntities(), array('name' => 'object_id', 'id' => 'id'), 0, FALSE) . '</td>' .
+			'<td>' . getSelect (getTasksFrequencyEntities(), array('name' => 'frequency_id'), 0, FALSE) . '</td>' .
+			'<td>' . getSelect (getTasksObjectEntities(), array('name' => 'object_id'), 0, FALSE) . '</td>' .
 			'<td>&nbsp;</td>' .
 			'<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>' .
 			'</tr></form>';
@@ -93,8 +93,27 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 
 	$object_id = $definition['object_id'];
 
+	$isComplete = false;
+	$isEditable = (!$isComplete && !$isViewTab);
+	if (isTasksDebugUser()) {
+		echo $tasks_definition_id . ' : ';
+		echo $isComplete ? "COMPLETED" : "INCOMPLETE";
+		echo " ";
+		echo $isViewTab ? "VIEW" : "EDIT";
+		echo " ";
+		echo $isVertical ? "VERTICAL" : "HORIZONTAL";
+		echo " ";
+		echo $isEditable ? "EDITABLE" : "READONLY";
+		echo "\n";
+	}
+
 	if ($isVertical) {
 		startPortlet ('Task Definition');
+		if ($isEditable) {
+			printOpFormIntro ('upd', $definition['id']);
+			echo "<input type='hidden' name='task_definition_id' value='{$definition['id']}'>";
+			echo "<input type='hidden' name='id' value='{$definition['id']}'>";
+		}
 		echo '<table cellspacing=0 cellpadding=5 align=center>';
 	} else if ($tasks_definition_id == 0) {
 		echo '<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>';
@@ -107,32 +126,20 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 		print '<td>&nbsp;</td>';
 	}
 
-	$isComplete = false;
-	$isEditable = (!$isComplete && !$isViewTab);
-	if ($remote_username == 'admin') {
-		echo $isComplete ? "COMPLETED" : "INCOMPLETE";
-		echo " ";
-		echo $isViewTab ? "VIEW" : "EDIT";
-		echo " ";
-		echo $isVertical ? "VERTICAL" : "HORIZONTAL";
-		echo " ";
-		echo $isEditable ? "EDITABLE" : "READONLY";
-	}
-
 	$label = mkA ( stringForLabel ($definition['name']), 'tasksdefinition', $definition['id'], $isVertical?'edit':NULL);
-	$input = '<input type=text size=24 name=name value="' . stringForLabel ($definition['name']) . '">';
+	$input = '<input type=text size=24 name=name value="' . $definition['name'] . '">';
 	renderTasksEditField ($isViewTab, $isVertical, 'task', $label, $input);
 
 	$label = htmlspecialchars ($definition['description'], ENT_QUOTES, 'UTF-8');
-	$input = '<input type=text size=48 name=description value="' . $label . '">';
+	$input = '<input type=text size=48 name=description value="' . $definition['description'] . '">';
 	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $input);
 
 	$label = $definition['enabled'];
-	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled', 'id' => 'enabled'), $definition['enabled']);
+	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), $definition['enabled']);
 	renderTasksEditField ($isViewTab, $isVertical, 'enabled', $label, $input);
 
 	$label = $definition['mode'];
-	$input = getSelect (getTasksModes(), array ('name' => 'mode', 'id' => 'mode'), $definition['mode']);
+	$input = getSelect (getTasksModes(), array ('name' => 'mode'), $definition['mode']);
 	renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $input);
 
 	$label = $definition['start_time'];
@@ -140,11 +147,11 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	renderTasksEditField ($isViewTab, $isVertical, 'start_time', $label, $input);
 
 	$label = htmlspecialchars ($definition['frequency_name'], ENT_QUOTES, 'UTF-8');
-	$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id', 'id' => 'id'), $definition['frequency_id'], FALSE);
+	$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id'), $definition['frequency_id'], FALSE);
 	renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $input);
 
 	$label = htmlspecialchars ($definition['object_name'], ENT_QUOTES, 'UTF-8');
-	$input = getSelect (getTasksObjectEntities (), array('name' => 'name', 'id' => 'object_id'), $definition['object_id'], FALSE);
+	$input = getSelect (getTasksObjectEntities (), array('name' => 'object_id'), $definition['object_id'], FALSE);
 	renderTasksEditField ($isViewTab, $isVertical, 'object', $label, $input);
 
 	$label = htmlspecialchars ($definition['num_items'], ENT_QUOTES, 'UTF-8');
@@ -161,5 +168,7 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	if ($isVertical) {
 		echo '</tr></form>';
 		finishPortlet ();
+	} else {
+		echo '</tr>';
 	}
 }

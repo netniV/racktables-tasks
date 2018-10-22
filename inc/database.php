@@ -165,8 +165,10 @@ function updateTasksDefinitionProcessedTime ($id, $date) {
 }
 
 function ensureTasksDefinitionNextDue ($id) {
+	recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): started');
 	$definition = getTasksDefinitions ($id);
 	if ($definition) {
+		recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): found: ' . json_encode($definition));
 		$definition = reset($definition);
 	}
 
@@ -192,6 +194,8 @@ function ensureTasksDefinitionNextDue ($id) {
 
 			insertTasksItem($definition['id'], $definition['mode'], $definition['name'], $definition['description'], $definition['object_id'], $next->format('Y-m-d H:i:s'));
 		}
+	} else {
+		recordTasksDebug('No definition found for '. $definition['id']);
 	}
 }
 
@@ -211,7 +215,7 @@ function getTasksItems ($object_id, $include_completed = false, $task_id = 0)
 
 	if (!$include_completed) $tasksWhere .= 'AND TI.`completed` = \'no\' ';
 
-	$mainSQL = 'SELECT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
+	$mainSQL = 'SELECT DISTINCT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
 		'TI.`user_name` AS completed_by, TI.`name`, TI.`mode`, TI.`notes`, ' .
 		'TI.`description`, TI.`completed`, TI.`completed_time`, TI.`created_time`, ' .
 		'TF.`id` AS `frequency_id`, TF.`name` AS `frequency_name`, TF.`format` AS `frequency_format` ' .
@@ -307,7 +311,7 @@ function updateTasksItem ($id, $completed, $notes, $user = '') {
 			$ret = buildRedirectURL ('tasksitem', 'default', array('task_item_id' => $id));
 		}
 	}
-	error_log("updateTasksItem($id) : returns $ret");
+	recordTasksDebug("updateTasksItem($id) : returns $ret");
 	return $ret;
 }
 

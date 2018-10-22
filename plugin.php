@@ -198,7 +198,7 @@ function plugin_tasks_decodeTitle($no) {
 				'tasks_definition_id' => isset($_REQUEST['tasks_definition_id']) ? $_REQUEST['tasks_definition_id'] : 0
 			)
 		);
-		error_log("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));
+		recordTasksDebug("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));
 	}
 
 	if ($no == 'object:tasks') {
@@ -236,12 +236,12 @@ function plugin_tasks_decodeTitle($no) {
 
 	if (!empty($title)) {
 		stopHookPropagation ();
-		error_log('decodeTitle("' . $no . '"): returned ' . json_encode($title));
+		recordTasksDebug('decodeTitle("' . $no . '"): returned ' . json_encode($title));
 		return $title;
 	}
 
 	if (!in_array($no, array('object','ipv4space'))) {
-		error_log('decodeTitle("' . $no . '"): unhandled');
+		recordTasksDebug('decodeTitle("' . $no . '"): unhandled');
 	}
 	return $no;
 }
