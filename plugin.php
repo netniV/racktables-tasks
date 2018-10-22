@@ -71,9 +71,9 @@ INSERT INTO TasksFrequency (name, format) VALUES ('Last Thursday','last thursday
 INSERT INTO TasksFrequency (name, format) VALUES ('Every Friday','next friday');
 INSERT INTO TasksFrequency (name, format) VALUES ('Every Monday','next monday');
 INSERT INTO TasksFrequency (name, format) VALUES ('Every Wednesday','next wednesday');
-INSERT INTO TasksFrequency (name, format) VALUES ('Quarterly','first day of this month, +3 months midnight');
+INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 1st','first day of this month; next month');
 INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 15th','first day of this month; next month; +15 days');
-INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 1st','first day of this month, next month');
+INSERT INTO TasksFrequency (name, format) VALUES ('Quarterly','first day of this month, +3 months midnight');
 INSERT INTO TasksFrequency (name, format) VALUES ('Semi-Annual 1st','first day of this month, +6 months midnight');
 ");
 	$dbxlink->query ("
@@ -194,7 +194,8 @@ function plugin_tasks_decodeTitle($no) {
 			'name' => 'Tasks',
 			'params' => array(
 				'page' => 'tasks',
-				'tab' => 'definitions'
+				'tab' => 'definitions',
+				'tasks_definition_id' => isset($_REQUEST['tasks_definition_id']) ? $_REQUEST['tasks_definition_id'] : 0
 			)
 		);
 		error_log("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));

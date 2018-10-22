@@ -25,6 +25,7 @@ function initTasksNavigationTasksDefinition() {
 	$page['tasksdefinition']['parent']      = 'tasksdefinitions';
 	$page['tasksdefinition']['bypass']      = 'task_definition_id';
 	$page['tasksdefinition']['bypass_type'] = 'natural';
+	$page['tasksdefinition']['bypass_tabs'] = array('default', 'edit');
 
 	$tab['tasksdefinition']['default'] = 'View';
 	$tab['tasksdefinition']['edit']    = 'Properties';
