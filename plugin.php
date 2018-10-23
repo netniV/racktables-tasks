@@ -194,8 +194,7 @@ function plugin_tasks_decodeTitle($no) {
 			'name' => 'Tasks',
 			'params' => array(
 				'page' => 'tasks',
-				'tab' => 'definitions',
-				'tasks_definition_id' => isset($_REQUEST['tasks_definition_id']) ? $_REQUEST['tasks_definition_id'] : 0
+				'tab' => 'default',
 			)
 		);
 		recordTasksDebug("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));
