@@ -104,7 +104,7 @@ function renderTasksItems ($object_id)
 		echo '<th>definition</th>';
 		echo '<th>mode</th>';
 
-		echo '<th>created</th>';
+		echo '<th>date</th>';
 
 		if ($isHistoryTab) {
 			echo	'<th>completed</th>';
@@ -194,14 +194,14 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	$now = new DateTime();
 	$color = 'transparent';
-	$incomplete = 'incomplete';
+	$incomplete = '';
 
 	if ($task['completed'] == 'no' && $task['mode'] == 'due') {
 		$created = new DateTime($task['created_time']);
 		$diff  = $now->diff($created);
-		$incomplete = getTasksDiffString($diff);
 
 		if ($created <= $now) {
+			$incomplete = getTasksDiffString($diff);
 			$freq  = $task['frequency_format'];
 			$next  = clone $created;
 			$count = 0;
@@ -240,14 +240,14 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		$tasks['description'] = 'definition ' + $task['definition_id'];
 	}
 
-	$label = mkA (stringForLabel ($task['description']), 'tasksdefinition', $task['definition_id']);
+	$label = mkA ($task['description'], 'tasksdefinition', $task['definition_id']);
 	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
 
 	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
 	renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $label);
 
 	$label = htmlspecialchars ($task['created_time'], ENT_QUOTES, 'UTF-8');
-	renderTasksEditField ($isViewTab, $isVertical, 'created', $label, $label);
+	renderTasksEditField ($isViewTab, $isVertical, 'date', $label, $label);
 
 	$isComplete = $task['completed'] == 'yes';
 	$isEditable = !($isComplete || $isViewTab);
@@ -271,7 +271,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	}
 
 	if (!$isComplete) {
-		$label = mkA (stringForLabel ($task['frequency_name']), 'tasksfrequency', $task['frequency_id']) . ' ' . $incomplete;
+		$label = $incomplete;
 		renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $label, 2, $color);
 	}
 
