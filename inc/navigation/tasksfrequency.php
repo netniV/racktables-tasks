@@ -14,12 +14,12 @@ function initTasksNavigationTasksFrequency () {
 	$page['tasksfrequencies']['parent'] = 'tasks:frequencies';
 
 	$tab['tasksfrequencies']['default'] = 'Browse';
-	$tab['tasksfrequencies']['add']     = 'Add more';
+	//$tab['tasksfrequencies']['add']     = 'Add more';
 
 	registerTabHandler ('tasksfrequencies', 'default', 'renderTasksFrequencies');
 	registerTabHandler ('tasksfrequencies', 'add',     'renderTasksFrequencies');
 
-	registerOpHandler  ('tasksfrequencies', 'add', 'add', 'addTasksFrequency');
+	registerOpHandler  ('tasksfrequencies', 'default', 'add', 'addTasksFrequency');
 
 	$interface_requires['tasksfrequencies-*'] = 'interface-config.php';
 

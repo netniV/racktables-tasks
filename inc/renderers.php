@@ -13,7 +13,8 @@ function renderTasksEditField($isViewOnly, $isVertical, $label, $entityView, $en
 	}
 
 	$colSpan = ($columns > 0) ? ' colspan="' .  $columns . '"' : '';
-	echo '<td' . $colSpan . ' class="tdleft ' . $class . '" ' . (empty($style) ? '' : "style='$style' ") . '>' . ($isViewOnly ? $entityView : $entityEdit) . '</td>';
+	echo '<td' . $colSpan . ' class="tdleft ' . $class . '" ' . (empty($style) ? '' : "style='$style' ") . '>' . 
+		($isViewOnly ? $entityView : $entityEdit) . '</td>';
 
 	if ($isVertical) {
 		echo '</tr>';
