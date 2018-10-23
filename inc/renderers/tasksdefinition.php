@@ -59,9 +59,11 @@ function renderTasksDefinitions ()
 	if (getConfigVar ('ADDNEW_AT_TOP') == 'yes')
 		printNewItemTR ();
 
-	foreach (getTasksDefinitions () as $definition)
-	{
-		renderTasksDefinition ($definition['id'], false);
+	if (!isset($_REQUEST['tab']) || $_REQUEST['tab'] != 'add') {
+		foreach (getTasksDefinitions () as $definition)
+		{
+			renderTasksDefinition ($definition['id'], false);
+		}
 	}
 
 	if (getConfigVar ('ADDNEW_AT_TOP') != 'yes')
