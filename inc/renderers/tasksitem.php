@@ -97,20 +97,21 @@ function renderTasksItems ($object_id)
 		echo '<table cellspacing=0 cellpadding=5 align=center class=widetable>';
 		echo '<tr><th>&nbsp;</th>';
 
-		echo	'<th>task</th>' .
-			'<th>object</th>' .
-			'<th>definition</th>';
-
-		if ($isHistoryTab) {
-			echo	'<th>mode</th>';
+		echo '<th>task</th>';
+		if ($isTasksPage) {
+			echo '<th>object</th>';
 		}
+		echo '<th>definition</th>';
+		echo '<th>mode</th>';
 
-		echo '<th>created/due time</th>';
+		echo '<th>created</th>';
 
 		if ($isHistoryTab) {
-			echo	'<th>completed</th>' .
-				'<th>completed time</th>' .
-				'<th>completed user</th>' .
+			echo	'<th>completed</th>';
+		}
+		echo '<th>due/completed time</th>';
+		if ($isHistoryTab) {
+				'<th>&nbsp;</th>' .
 				'<th>notes</th>';
 		}
 
@@ -222,7 +223,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	$label = mkA (stringForLabel ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
 	$input = stringForLabel ($task['name']);
-	renderTasksEditField ($isViewTab, $isVertical, 'task', $label, $input);
+	renderTasksEditField ($isViewTab || !$isVertical, $isVertical, 'task', $label, $input);
 
 	if ($isTasksPage) {
 		if ($object_id) {
@@ -242,10 +243,8 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$label = mkA (stringForLabel ($task['description']), 'tasksdefinition', $task['definition_id']);
 	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
 
-	if ($isHistoryTab || $isVertical) {
-		$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
-		renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $label);
-	}
+	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
+	renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $label);
 
 	$label = htmlspecialchars ($task['created_time'], ENT_QUOTES, 'UTF-8');
 	renderTasksEditField ($isViewTab, $isVertical, 'created', $label, $label);
