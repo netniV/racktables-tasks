@@ -168,9 +168,13 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	renderTasksEditField ($isViewTab, $isVertical, '', $label, $input);
 
 	if ($isVertical) {
-		echo '</tr></form>';
+		echo '</tr></form></table>';
 		finishPortlet ();
 	} else {
 		echo '</tr>';
+	}
+
+	if ($isViewTab && $isVertical) {
+		renderTasksItems (NULL, $tasks_definition_id);
 	}
 }

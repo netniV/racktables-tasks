@@ -201,7 +201,7 @@ function ensureTasksDefinitionNextDue ($id) {
 
 /*** TASKSITEM FUNCTIONS ***/
 
-function getTasksItems ($object_id, $include_completed = false, $task_id = 0)
+function getTasksItems ($object_id, $include_completed = false, $task_id = 0, $task_definition_id = 0)
 {
 	$params = array($object_id);
 	$tasksWhere = ($object_id > 0) ?
@@ -211,6 +211,11 @@ function getTasksItems ($object_id, $include_completed = false, $task_id = 0)
 	if ($task_id > 0) {
 		$tasksWhere .= 'AND (TI.`id` = ?) ';
 		$params[] = $task_id;
+	}
+
+	if ($task_definition_id > 0) {
+		$tasksWhere .= 'AND (TI.`definition_id` = ?) ';
+		$params[] = $task_definition_id;
 	}
 
 	if (!$include_completed) $tasksWhere .= 'AND TI.`completed` = \'no\' ';

@@ -56,15 +56,23 @@ ENDOFSCRIPT;
 	}
 }
 
-function renderTasksItems ($object_id)
+function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 {
 	renderTasksItemsGlobals ();
 
-	if (!isset($object_id)) {
+	if ($object_id == NULL) {
 		if (isset($_REQUEST['object_id'])) {
 			$object_id = genericAssertion('object_id', 'uint');
 		} else {
 			$object_id = 0;
+		}
+	}
+
+	if ($task_definition_id == NULL) {
+		if (isset($_REQUEST['task_definition_id'])) {
+			$task_definition_id = genericAssertion('task_definition_id', 'uint');
+		} else {
+			$task_definition_id = 0;
 		}
 	}
 
@@ -76,7 +84,7 @@ function renderTasksItems ($object_id)
 	}
 
 	$isAddTab = $_REQUEST['tab'] == 'add';
-	$tasks = getTasksItems ($object_id, $isHistoryTab);
+	$tasks = getTasksItems ($object_id, $isHistoryTab, 0, $task_definition_id);
 	$show  = true;
 	if (($tasks === false || !count($tasks)) && (empty($_REQUEST['tab']) || $_REQUEST['tab'] == 'default')) {
 		$show = false;
