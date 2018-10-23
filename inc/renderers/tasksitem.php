@@ -98,10 +98,10 @@ function renderTasksItems ($object_id)
 		echo '<tr><th>&nbsp;</th>';
 
 		echo '<th>task</th>';
+		echo '<th>definition</th>';
 		if ($isTasksPage) {
 			echo '<th>object</th>';
 		}
-		echo '<th>definition</th>';
 		echo '<th>mode</th>';
 
 		echo '<th>date</th>';
@@ -225,6 +225,13 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$input = stringForLabel ($task['name']);
 	renderTasksEditField ($isViewTab || !$isVertical, $isVertical, 'task', $label, $input);
 
+	if (empty($task['description'])) {
+		$tasks['description'] = 'definition ' + $task['definition_id'];
+	}
+
+	$label = mkA (stringForLabel ($task['description'], 90), 'tasksdefinition', $task['definition_id']);
+	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
+
 	if ($isTasksPage) {
 		if ($object_id) {
 			$label = (empty($task['object_name'])) ? '' : mkA (stringForLabel ($task['object_name']), 'object', $task['object_id']);
@@ -235,13 +242,6 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		}
 		renderTasksEditField (!$isAddTab, $isVertical, 'object', $label, $input);
 	}
-
-	if (empty($task['description'])) {
-		$tasks['description'] = 'definition ' + $task['definition_id'];
-	}
-
-	$label = mkA (stringForLabel ($task['description'], 90), 'tasksdefinition', $task['definition_id']);
-	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
 
 	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
 	renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $label);
