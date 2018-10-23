@@ -38,7 +38,9 @@ function updTasksItem () {
 	(
 		assertTasksParam ('id', 'uint'),
 		assertTasksParam ('completed', 'enum/yesno'),
-		assertTasksParam ('notes', 'string0')
+		assertTasksParam ('notes', 'string0'),
+		assertTasksParam ('completed_by', 'string0'),
+		assertTasksParam ('completed_time', 'date0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 	return $ret;

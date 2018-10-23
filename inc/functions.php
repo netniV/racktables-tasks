@@ -24,6 +24,15 @@ function assertTasksParam ($argname, $argtype) {
 			}
 
 			return $sic[$argname];
+		case 'date0':
+			if (!empty($sic[$argname])) {
+				try {
+					$d = new DateTime($sic[$argname]);
+				} catch (Exception $e) {
+					throw new InvalidRequestArgException ($argname, $sic[$argname], 'Invalid DateTime');
+				}
+			}
+			return $sic[$argname];
 		case 'enum/mode':
 			if (! array_key_exists ($sic[$argname], getTasksModes()))
 				throw new InvalidRequestArgException ($argname, $sic[$argname], 'Unknown value');

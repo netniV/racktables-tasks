@@ -260,7 +260,7 @@ function insertTasksItem ($definition_id, $mode, $name, $description, $object_id
 	);
 }
 
-function updateTasksItem ($id, $completed, $notes, $user = '') {
+function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 
 	global $remote_username;
 	$ret    = false;
@@ -282,7 +282,7 @@ function updateTasksItem ($id, $completed, $notes, $user = '') {
 
 		if ($completed == 'yes') {
 			$fields['completed'] = $completed;
-			$fields['completed_time'] = date('Y-m-d H:i:s');
+			$fields['completed_time'] = empty($time) ? date('Y-m-d H:i:s') : $time;
 			$fields['user_name'] = empty($user) ? $remote_username : $user;
 
 			/*

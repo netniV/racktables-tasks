@@ -26,7 +26,33 @@ function renderTasksItemsGlobals () {
 		background: red;
 	}
 </style>";
+		global $remote_username;
+		echo <<<ENDOFSCRIPT
+<script>
+$(function() {
+	$('#completed').change(function() {
+		var getZeroPrefix = function(d) {
+			return (d < 10 ? '0' : '') + d;
+		}
 
+		var completed = $('#completed').val() == 'yes';
+
+		if (completed) {
+ 			var d = new Date();
+			var c = d.getFullYear() + '-' + getZeroPrefix(d.getMonth()) + '-' + getZeroPrefix(d.getDate()) + ' ' +
+				getZeroPrefix(d.getHours()) + ':' + getZeroPrefix(d.getMinutes()) + ':' + getZeroPrefix(d.getSeconds());
+
+			var u = '{$remote_username}';
+		} else {
+			let c = '';
+			let u = '';
+		}
+		$('input[name=completed_time]').val(c);
+		$('input[name=completed_by]').val(u);
+	});
+});
+</script>
+ENDOFSCRIPT;
 	}
 }
 
@@ -248,12 +274,16 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if (!$isComplete) {
 		$label = mkA (stringForLabel ($task['frequency_name']), 'tasksfrequency', $task['frequency_id']) . ' ' . $incomplete;
 		renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $label, 2, $color);
-	} else if ($isHistoryTab || $isVertical) {
+	}
+
+	if ($isHistoryTab || $isVertical) {
 		$label = htmlspecialchars ($task['completed_time'], ENT_QUOTES, 'UTF-8');
-		renderTasksEditField ($isViewTab, $isVertical, 'completed', $label, $label);
+		$input = '<input type=text name=completed_time value="' . $tasks['completed_time'] . '">';
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $input);
 
 		$label = htmlspecialchars ($task['completed_by'], ENT_QUOTES, 'UTF-8');
-		renderTasksEditField ($isViewTab, $isVertical, 'completed by', $label, $label);
+		$input = '<input type=text name=completed_by value="' . $tasks['completed_by'] . '">';
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed by', $label, $input);
 	}
 
 	if ($isHistoryTab || $isVertical) {
