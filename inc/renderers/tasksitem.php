@@ -240,7 +240,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		$tasks['description'] = 'definition ' + $task['definition_id'];
 	}
 
-	$label = mkA ($task['description'], 'tasksdefinition', $task['definition_id']);
+	$label = mkA (stringForLabel ($task['description'], 90), 'tasksdefinition', $task['definition_id']);
 	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
 
 	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
