@@ -1,11 +1,15 @@
 <?php
 
 function renderTasksItemsGlobals () {
-	static $isRendered = false;
+	static $isRenderedTasksItemsGlobal = false;
 
-	if (!$isRendered) {
-		$isRendered = true;
-		echo "<style>
+	if (!$isRenderedTasksItemsGlobal) {
+		$isRenderedTasksItemsGlobal = true;
+
+		renderJSLinks();
+
+		echo <<<ENDOFSTYLE
+<style>
 	.overdue, .late {
 		color: white;
 	}
@@ -25,7 +29,9 @@ function renderTasksItemsGlobals () {
 	.late {
 		background: red;
 	}
-</style>";
+</style>
+ENDOFSTYLE;
+
 		global $remote_username;
 		echo <<<ENDOFSCRIPT
 <script>
@@ -50,6 +56,14 @@ $(function() {
 		$('input[name=completed_time]').val(c);
 		$('input[name=completed_by]').val(u);
 	});
+
+	$("#taskstable").tablesorter({
+		widthFixed: true,
+		dateFormat: "yy-mm-dd",
+		sortReset: true,
+		widgets: ['zebra' ],
+	});
+        $("#taskstable").tablesorterPager({container: $("#pager")});
 });
 </script>
 ENDOFSCRIPT;
@@ -102,8 +116,8 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 			startPortlet ('Tasks Outstanding');
 		}
 
-		echo '<table cellspacing=0 cellpadding=5 align=center class=widetable>';
-		echo '<tr><th>&nbsp;</th>';
+		echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=taskstable name=taskstable>';
+		echo '<thead><tr><th>&nbsp;</th>';
 
 		echo '<th>task</th>';
 		echo '<th>definition</th>';
@@ -124,14 +138,32 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		}
 
 		echo	'<th>&nbsp;</th>' .
-			'</tr>';
+			'</tr></thead><tbody>';
 
 		$now = new DateTime();
 		foreach ($tasks as $task_id => $task)
 		{
 			renderTasksItem ($task['id'], false, $isTasksPage, $isHistoryTab);
 		}
-		echo "</table>\n";
+		echo "</tbody></table>\n";
+		echo '<div id="pager" class="pager"><form>
+		<img src="?module=chrome&uri=tasks/images/first.png" class="first"/>
+		<img src="?module=chrome&uri=tasks/images/prev.png" class="prev"/>
+		<input type="text" class="pagedisplay"/>
+		<img src="?module=chrome&uri=tasks/images/next.png" class="next"/>
+		<img src="?module=chrome&uri=tasks/images/last.png" class="last"/>
+		<select class="pagesize">
+			<option value="">>LIMIT</option>
+			<option value="2">2 per page</option>
+			<option value="5">5 per page</option>
+			<option value="10" selected="selected">10 per page</option>
+			<option value="20">20 per page</option>
+			<option value="30">30 per page</option>
+			<option value="40">40 per page</option>
+			<option value="50">50 per page</option>
+		</select>
+		</form>
+		</div>';
 		finishPortlet ();
 	}
 }
@@ -208,8 +240,11 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		$created = new DateTime($task['created_time']);
 		$diff  = $now->diff($created);
 
-		if ($created <= $now) {
+		if ($created <= $now || $isVertical) {
 			$incomplete = getTasksDiffString($diff);
+		}
+
+		if ($created <= $now) {
 			$freq  = $task['frequency_format'];
 			$next  = clone $created;
 			$count = 0;
@@ -280,7 +315,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	if (!$isComplete) {
 		$label = $incomplete;
-		renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $label, 2, $color);
+		renderTasksEditField ($isViewTab, $isVertical, 'due', $label, $label, 2, $color);
 	}
 
 	if ($isHistoryTab || $isVertical) {
