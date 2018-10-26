@@ -230,7 +230,7 @@ function plugin_tasks_decodeTitle($no) {
 			$object_id = $_REQUEST['object_id'];
 			$obj = spotEntity('object', $object_id);
 		} elseif (isset($_REQUEST['task_item_id'])) {
-			$obj = getTasksItems (0, true, $_REQUEST['task_item_id']);
+			$obj = getTasksItems (0, NULL, $_REQUEST['task_item_id']);
 			if ($obj) {
 				$obj = reset($obj);
 				$obj['dname'] = $obj['object_name'];
