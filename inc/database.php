@@ -356,7 +356,10 @@ function updateTasksItemsObjectFromDefinition ($id, $definition) {
 		usePreparedUpdateBlade
 		(
 			'TasksItem',
-			array('object_id' => $definition['object_id']),
+			array(
+				'object_id' => $definition['object_id'],
+				'name' => $definition['name']
+			),
 			array('definition_id' => $id, 'completed' => 'no')
 		);
 	}
