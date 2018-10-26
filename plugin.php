@@ -17,8 +17,31 @@ function plugin_tasks_info ()
 	);
 }
 
+function tasks_exception_error_handler($errno, $errstr, $errfile, $errline ) {
+	if (error_reporting()) {
+		$message = "Unexpected error $errno @ $errline in $errfile : $errstr";
+		$backtrace = debug_backtrace();
+		error_log($message);
+		$basedir = realpath(__DIR__ . '/../../');
+		foreach ($backtrace as $trace) {
+			$file = str_replace($basedir, '', $trace['file']);
+			$func = (isset($trace['class']) ? ($trace['class'] . '::') : '') . $trace['function'];
+			error_log("{$file}[{$trace['line']}] $func");
+		}
+
+		if (!empty(trim(file_get_contents(__DIR__ . '/.debug')))) {
+			throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+		}
+	}
+}
+
 function plugin_tasks_init ()
 {
+	if (file_exists(__DIR__ . '/.debug')) {
+		set_error_handler("tasks_exception_error_handler");
+	}
+
+
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 
 	initTasksNavigation();

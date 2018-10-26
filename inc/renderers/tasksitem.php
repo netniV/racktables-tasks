@@ -229,7 +229,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	}
 
 	if (!$isViewTab) {
-		printOpFormIntro ('upd', array ('id' => $task['id']));
+		printOpFormIntro ('upd', array ('task_item_id' => $task['id']));
 	}
 
 	$now = new DateTime();

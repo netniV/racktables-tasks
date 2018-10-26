@@ -112,7 +112,7 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	if ($isVertical) {
 		startPortlet ('Task Definition');
 		if ($isEditable) {
-			printOpFormIntro ('upd', $definition['id']);
+			printOpFormIntro ('upd', array('task_definition_id' => $definition['id']));
 			echo "<input type='hidden' name='task_definition_id' value='{$definition['id']}'>";
 			echo "<input type='hidden' name='id' value='{$definition['id']}'>";
 		}
@@ -123,7 +123,7 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 		if ($definition['num_items'])
 			printImageHREF ('nodestroy', 'cannot delete, tasks exist');
 		else
-			echo getOpLink (array ('op' => 'del', 'id' => $definition['id']), '', 'destroy', 'delete this definition');
+			echo getOpLink (array ('op' => 'del', 'task_definition_id' => $definition['id']), '', 'destroy', 'delete this definition');
 	} else {
 		print '<td>&nbsp;</td>';
 	}

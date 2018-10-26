@@ -70,7 +70,7 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 	}
 
 	if (!$isViewTab) {
-		printOpFormIntro ('upd', array ('id' => $task['id']));
+		printOpFormIntro ('upd', array ('task_frequency_id' => $task['id']));
 	}
 
 	$now = new DateTime();
