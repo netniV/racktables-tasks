@@ -146,7 +146,7 @@ function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_i
 		array('id' => $id)
 	);
 
-	disableTasksItemsOutstanding ($id);
+	updateTasksItemsFromDefinition ($id);
 	ensureTasksDefinitionNextDue ($id);
 }
 
@@ -320,14 +320,44 @@ function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 	return $ret;
 }
 
-function disableTasksItemsOutstanding ($id) {
-	$definition_select = usePreparedSelectBlade ("SELECT * FROM TasksDefinition WHERE id = ?", array($id));
-	$definition = $definition_select->fetch (PDO::FETCH_ASSOC);
+function disableTasksItemsOutstanding ($id, $definition = '') {
+	if (empty($definition)) {
+		$definition_select = usePreparedSelectBlade ("SELECT * FROM TasksDefinition WHERE id = ?", array($id));
+		$definition = $definition_select->fetch (PDO::FETCH_ASSOC);
+	}
+
 	if ($definition && $definition['enabled'] == 'no') {
 		$item_select = usePreparedSelectBlade ("SELECT id FROM TasksItem WHERE definition_id = ? and completed = 'no'", array($id));
 		$item = $item_select->fetch (PDO::FETCH_ASSOC);
 		if (isset($item['id'])) {
 			updateTasksItem ($item['id'], 'yes', 'Auto completed by System (definition disabled)', 'system');
 		}
+	}
+}
+
+function updateTasksItemsFromDefinition ($id) {
+	$definition_select = usePreparedSelectBlade ("SELECT * FROM TasksDefinition WHERE id = ?", array($id));
+	$definition = $definition_select->fetch (PDO::FETCH_ASSOC);
+
+	if ($definition['enabled'] == 'yes') {
+		updateTasksItemsObjectFromDefinition($id, $definition);
+	} else {
+		disableTasksItemsOutstanding ($id, $definition);
+	}
+}
+
+function updateTasksItemsObjectFromDefinition ($id, $definition) {
+	if (empty($definition)) {
+		$definition_select = usePreparedSelectBlade ("SELECT * FROM TasksDefinition WHERE id = ?", array($id));
+		$definition = $definition_select->fetch (PDO::FETCH_ASSOC);
+	}
+
+	if ($definition && $definition['enabled'] == 'yes') {
+		usePreparedUpdateBlade
+		(
+			'TasksItem',
+			array('object_id' => $definition['object_id']),
+			array('definition_id' => $id, 'completed' => 'no')
+		);
 	}
 }
