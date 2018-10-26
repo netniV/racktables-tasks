@@ -218,11 +218,16 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 		$params[] = $task_definition_id;
 	}
 
-	if (empty($include_completed)) {
-		$include_completed = 'no';
-	}
+	$definitionWhere = '';
+	if ($include_completed !== NULL) {
+		if (empty($include_completed)) {
+			$include_completed = 'no';
+			$definitionWhere = ($include_completed == 'yes') ? '' : '    AND (TD.`enabled` = "yes") ';
+		}
 
-	$tasksWhere .= 'AND TI.`completed` = \'no\' ';
+		$tasksWhere .= 'AND TI.`completed` = ? ';
+		$params[] = $include_completed;
+	}
 
 	$mainSQL = 'SELECT DISTINCT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
 		'TI.`user_name` AS completed_by, TI.`name`, TI.`mode`, TI.`notes`, ' .
@@ -230,10 +235,11 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 		'TF.`id` AS `frequency_id`, TF.`name` AS `frequency_name`, TF.`format` AS `frequency_format` ' .
 		'FROM `TasksItem` AS TI ' .
 		'INNER JOIN `TasksDefinition` AS TD ON TD.`id` = TI.`definition_id` ' .
-		'    AND (TD.`enabled` = "yes") ' .
+		$definitionWhere .
 		'INNER JOIN `TasksFrequency` AS TF ON TF.`id` = TD.`frequency_id` ' .
 		'LEFT JOIN `Object` O ON O.id = TI.`object_id` ';
 
+	//echo "SQL: <pre>" . htmlspecialchars($mainSQL . "\n" . $tasksWhere . "\n" . var_export($params, true)) . "</pre>";
 	$result = usePreparedSelectBlade
 	(
 		$mainSQL .

@@ -9,7 +9,6 @@ function initTasksNavigationTasksItem() {
 	$page   ['tasksitem']['title']       = 'Task Item';
 	$page   ['tasksitem']['bypass']      = 'task_item_id';
 	$page   ['tasksitem']['bypass_type'] = 'uint';
-	$page   ['tasksitem']['bypass_tabs'] = array('default', 'edit');
 	$tab    ['tasksitem']['default'] = 'View';
 	$tab    ['tasksitem']['edit']    = 'Properties';
 

@@ -97,11 +97,29 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 	if ($isTasksPage) {
 		$isHistoryTab = $_TAB == 'history';
 	} else {
-		$isHistoryTab = empty($_TAB) || $_TAB == 'default';
+		$isHistoryTab = !(empty($_TAB) || $_TAB == 'default');
 	}
 
 	$isAddTab = $_TAB == 'add';
-	$tasks = getTasksItems ($object_id, $isHistoryTab, 0, $task_definition_id);
+	$tasks = array();
+	if (!$isTasksPage || ($isTasksPage && !$isHistoryTab)) {
+		$temp  = getTasksItems ($object_id, 'no', 0, $task_definition_id);
+		//echo "temp1: <pre>" . htmlspecialchars(var_export($temp, true)) . "</pre>";
+		if ($temp !== false && sizeof($temp)) {
+			$tasks = array_merge($tasks, $temp);
+		}
+	}
+	//echo "tasks: <pre>" . htmlspecialchars(var_export($tasks, true)) . "</pre>";
+
+	if (!$isTasksPage || ($isTasksPage && $isHistoryTab)) {
+		$temp  = getTasksItems ($object_id, 'yes', 0, $task_definition_id);
+		//echo "temp2: <pre>" . htmlspecialchars(var_export($temp, true)) . "</pre>";
+		if ($temp !== false && sizeof($temp)) {
+			$tasks = array_merge($tasks, $temp);
+		}
+	}
+	//echo "tasks: <pre>" . htmlspecialchars(var_export($tasks, true)) . "</pre>";
+
 	$show  = true;
 	if (($tasks === false || !count($tasks)) && (empty($_TAB) || $_TAB == 'default')) {
 		$show = false;
@@ -134,14 +152,16 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		if ($isHistoryTab) {
 			echo	'<th>completed</th>';
 		}
-		echo '<th>due/completed time</th>';
+
+		echo '<th>due or completed time</th>';
+
 		if ($isHistoryTab) {
-				'<th>&nbsp;</th>' .
-				'<th>notes</th>';
+			echo	'<th>user</th>' .
+				'<th>notes</th>' .
+				'<th>&nbsp;</th>';
 		}
 
-		echo	'<th>&nbsp;</th>' .
-			'</tr></thead><tbody>';
+		echo '</tr></thead><tbody>';
 
 		$now = new DateTime();
 		foreach ($tasks as $task_id => $task)
@@ -211,7 +231,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$isViewTab = empty($_TAB) || $_TAB == 'default' || $_TAB == 'history';
 	$isAddTab  = $_TAB == 'add';
 
-	$task      = getTasksItems ($object_id, $isViewTab, $task_item_id);
+	$task      = getTasksItems ($object_id, NULL, $task_item_id);
 //	if (empty($task)) {
 //		throw new EntityNotFoundException('TasksItem', $id);
 //	}
@@ -221,7 +241,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		$task = array('id' => $task_item_id, 'name' => 'missing', 'description' => 'mising',
 			'object_id' => '0', 'object_name' => 'missing',
 			'frequency_id' => '0', 'frequency_name' => 'missing',
-			'definition_id' => '0');
+			'definition_id' => '0', 'completed' => 'missing');
 	}
 	$object_id = $task['object_id'];
 
@@ -316,33 +336,28 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if ($isHistoryTab || $isVertical) {
 		$label = htmlspecialchars ($task['completed'], ENT_QUOTES, 'UTF-8');
 		$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'completed', 'id' => 'completed'), $task['completed']);
-		renderTasksEditField ($isViewTab, $isVertical, 'completed', $label, $isEditable ? $input : $label);
-	}
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $isEditable ? $input : $label);
 
-	if (!$isComplete) {
+		if ($isComplete) {
+			$incomplete = $task['completed_time'];
+		}
+
 		$label = $incomplete;
-		renderTasksEditField ($isViewTab, $isVertical, 'due', $label, $label, 2, $color);
-	}
-
-	if ($isHistoryTab || $isVertical) {
-		$label = htmlspecialchars ($task['completed_time'], ENT_QUOTES, 'UTF-8');
 		$input = '<input type=text name=completed_time value="' . $task['completed_time'] . '">';
-		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $input);
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $isEditable ? $input : $label, 1, $color);
 
 		$label = htmlspecialchars ($task['completed_by'], ENT_QUOTES, 'UTF-8');
 		$input = '<input type=text name=completed_by value="' . $task['completed_by'] . '">';
-		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed by', $label, $input);
-	}
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed by', $label, $isEditable ? $input : $label);
 
-	if ($isHistoryTab || $isVertical) {
 		$label = htmlspecialchars ($task['notes'], ENT_QUOTES, 'UTF-8');
 		$input = '<input type=textarea size=48 name=notes value="' . $label . '">';
-		renderTasksEditField ($isViewTab || !$isEditable, $isVertical, 'notes', $label, $input);
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'notes', $label, $isEditable ? $input : $label);
 	}
 
 	$label = '&nbsp;';
 	$input = getImageHREF ('save', 'update this task', TRUE);
-	renderTasksEditField ($isViewTab || !$isEditable, $isVertical, '', $label, $input);
+	renderTasksEditField ($isViewTab || $isHistoryTab || !$isEditable, $isVertical, '', $label, $input);
 
 	if ($isVertical) {
 		echo "</table></form>\n";
