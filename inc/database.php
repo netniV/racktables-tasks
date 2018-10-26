@@ -201,7 +201,7 @@ function ensureTasksDefinitionNextDue ($id) {
 
 /*** TASKSITEM FUNCTIONS ***/
 
-function getTasksItems ($object_id, $include_completed = false, $task_id = 0, $task_definition_id = 0)
+function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task_definition_id = 0)
 {
 	$params = array($object_id);
 	$tasksWhere = ($object_id > 0) ?
@@ -218,7 +218,11 @@ function getTasksItems ($object_id, $include_completed = false, $task_id = 0, $t
 		$params[] = $task_definition_id;
 	}
 
-	if (!$include_completed) $tasksWhere .= 'AND TI.`completed` = \'no\' ';
+	if (empty($include_completed)) {
+		$include_completed = 'no';
+	}
+
+	$tasksWhere .= 'AND TI.`completed` = \'no\' ';
 
 	$mainSQL = 'SELECT DISTINCT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
 		'TI.`user_name` AS completed_by, TI.`name`, TI.`mode`, TI.`notes`, ' .

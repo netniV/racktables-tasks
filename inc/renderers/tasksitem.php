@@ -74,6 +74,9 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 {
 	renderTasksItemsGlobals ();
 
+	$_PAGE = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+	$_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : '';
+
 	if ($object_id == NULL) {
 		if (isset($_REQUEST['object_id'])) {
 			$object_id = genericAssertion('object_id', 'uint');
@@ -90,17 +93,17 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		}
 	}
 
-	$isTasksPage = $_REQUEST['page'] == 'tasks';
+	$isTasksPage = $_PAGE == 'tasks';
 	if ($isTasksPage) {
-		$isHistoryTab = isset($_REQUEST['tab']) && $_REQUEST['tab'] == 'history';
+		$isHistoryTab = $_TAB == 'history';
 	} else {
-		$isHistoryTab = empty($_REQUEST['tab']) || $_REQUEST['tab'] == 'default';
+		$isHistoryTab = empty($_TAB) || $_TAB == 'default';
 	}
 
-	$isAddTab = $_REQUEST['tab'] == 'add';
+	$isAddTab = $_TAB == 'add';
 	$tasks = getTasksItems ($object_id, $isHistoryTab, 0, $task_definition_id);
 	$show  = true;
-	if (($tasks === false || !count($tasks)) && (empty($_REQUEST['tab']) || $_REQUEST['tab'] == 'default')) {
+	if (($tasks === false || !count($tasks)) && (empty($_TAB) || $_TAB == 'default')) {
 		$show = false;
 	}
 
@@ -185,6 +188,9 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 {
 	global $remote_username;
 
+	$_PAGE = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+	$_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : '';
+
 	if (isTasksDebugUser()) {
 		echo "renderTasksItem (id: $task_item_id, isVertical: $isVertical, isTasksPage: $isTasksPage)<br/>";
 	}
@@ -202,8 +208,8 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		$object_id = intval(genericAssertion ('object_id', 'uint'));
 	}
 
-	$isViewTab = empty($_REQUEST['tab']) || $_REQUEST['tab'] == 'default' || $_REQUEST['tab'] == 'history';
-	$isAddTab  = !empty($_REQUEST['tab']) && $_REQUEST['tab'] == 'add';
+	$isViewTab = empty($_TAB) || $_TAB == 'default' || $_TAB == 'history';
+	$isAddTab  = $_TAB == 'add';
 
 	$task      = getTasksItems ($object_id, $isViewTab, $task_item_id);
 //	if (empty($task)) {
@@ -320,11 +326,11 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	if ($isHistoryTab || $isVertical) {
 		$label = htmlspecialchars ($task['completed_time'], ENT_QUOTES, 'UTF-8');
-		$input = '<input type=text name=completed_time value="' . $tasks['completed_time'] . '">';
+		$input = '<input type=text name=completed_time value="' . $task['completed_time'] . '">';
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $input);
 
 		$label = htmlspecialchars ($task['completed_by'], ENT_QUOTES, 'UTF-8');
-		$input = '<input type=text name=completed_by value="' . $tasks['completed_by'] . '">';
+		$input = '<input type=text name=completed_by value="' . $task['completed_by'] . '">';
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed by', $label, $input);
 	}
 
