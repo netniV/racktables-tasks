@@ -11,17 +11,21 @@ Install this plugin in the normal method for RackTables plugins.
 
 ## Definitions
 
-To create a definition, you can either use the top `Tasks` link, or via
-`Configuration` -> `TasksDefinitions`.  Once a definition has tasks associated
-to it, you can not delete it but you can disable it.
+Task Definitions rely on predefined Task Frequencies, so you need to make sure 
+that you have the frequency you want already configured. To create a Task
+Definition, you can must use the top `Tasks` link, then click on the 
+`Definitions` tab.  
 
-TasksDefinition's can have two modes of operation:
+Once a definition has tasks associated to it, you can not delete it but you can 
+disable it.
+
+Task Definition's can have two modes of operation:
 
 - Next Due
 
 - Scheduled
 
-When a TasksDefinition is disabled, any outstanding tasks are automatically
+When a Task Definition is disabled, any outstanding tasks are automatically
 closed by the system and the note is replaced with a comment to that effect.
 
 ## Next Due
@@ -31,10 +35,10 @@ start\_time and frequency are required.  When a TasksDefinition is enabled, any
 time the definition is updated or the outstanding TasksItem is completed, a new
 task is created.
 
-The new TasksItem's created\_time will be set to either the start\_time or the
-previous TasksItem's created\_time incremented by the frequency.
+The new Task Item's created\_time will be set to either the start\_time or the
+previous Task Item's created\_time incremented by the frequency.
 
-If the completing TasksItem's definition is disabled, no new TasksItem is
+If the completing Task Item's definition is disabled, no new TasksItem is
 created.
 
 ## Scheduled mode
@@ -57,33 +61,30 @@ created.
 
 ## Frequency
 
-Frequency is a very flexible and powerful field.  By default, when a browser
-supports it, there will be a list of predefined entries that can be selected to
-be used as the frequency.
+Task Frequencies are a very flexible and powerful tool in the arsenal.  Each 
+frequency requires just a name and the format (frequency).  The name is 
+displayed in the drop down selections available when defining a definition.
 
-The field must be entered in one of the following styles:
+By default, when a browser supports it, there will be a list of predefined 
+entries that can be selected when entering a format.
 
-- _**format**_
+The format must be entered in one of the following styles:
 
-  The format can be multiple formats separated by semi-colons.
+- *relative format*
 
-  Each format may take one of the following forms:
+  A relative format is the PHP term for modifying date/times and for more
+  information on them, please see [PHP's relative formats](http://php.net/manual/en/datetime.formats.relative.php)
 
-  - *relative format*
+- *interval format*
 
-     A relative format is the PHP term for modifying date/times and for more
-     information on them, please see [PHP's relative formats](http://php.net/manual/en/datetime.formats.relative.php)
+  An interval format is the PHP term for specifying date/time intervals for more
+  information on them, please see [PHP's interval\_spec](http://php.net/manual/en/dateinterval.construct.php)
 
-  - *interval format*
-
-     An interval format is the PHP term for specifying date/time intervals for more
-     information on them, please see [PHP's interval\_spec](http://php.net/manual/en/dateinterval.construct.php)
-
-- _**label (format)**_
-
-  The label is purely a descriptive term that is shown to help the user
-  understand what the format is attempting to achieve. The format must match the above format style
-
+You can utilise multiple formats in one frequency by separating them with a semi 
+colon (;).  Each format will be applied to the one before it in a cascading 
+effect.  When using multiple formats, you can switch between `Relative` and 
+`Interval` formats, but it is not advised to mix these as it will be easier to 
+read using just multiple relative formats.
 
 ## Examples
 
