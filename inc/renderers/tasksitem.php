@@ -111,21 +111,17 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 	$tasks = array();
 	if (!$isTasksPage || ($isTasksPage && !$isHistoryTab)) {
 		$temp  = getTasksItems ($object_id, 'no', 0, $task_definition_id);
-		echo "temp1: <pre>" . htmlspecialchars(var_export($temp, true)) . "</pre>";
 		if ($temp !== false && sizeof($temp)) {
 			$tasks = array_merge($tasks, $temp);
 		}
 	}
-	echo "tasks: <pre>" . htmlspecialchars(var_export($tasks, true)) . "</pre>";
 
 	if (!$isTasksPage || ($isTasksPage && $isHistoryTab)) {
 		$temp  = getTasksItems ($object_id, 'yes', 0, $task_definition_id);
-		echo "temp2: <pre>" . htmlspecialchars(var_export($temp, true)) . "</pre>";
 		if ($temp !== false && sizeof($temp)) {
 			$tasks = array_merge($tasks, $temp);
 		}
 	}
-	echo "tasks $_PAGE-$_TAB: <pre>" . htmlspecialchars(var_export($tasks, true)) . "</pre>";
 
 	$show  = true;
 	if (($tasks === false || !count($tasks)) && (empty($_TAB) || $_TAB == 'default')) {
