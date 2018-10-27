@@ -63,7 +63,8 @@ $(function() {
 		sortReset: true,
 		widgets: ['zebra' ],
 	});
-        $("#taskstable").tablesorterPager({container: $("#pager")});
+        $("#taskstable").tablesorterPager({container: $("#pager"), positionFixed: false});
+	$("#taskstable").tableFilter({ positionFixed: false });
 });
 </script>
 ENDOFSCRIPT;

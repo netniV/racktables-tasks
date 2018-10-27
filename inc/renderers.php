@@ -27,14 +27,11 @@ function renderJSLinks() {
 	if (!$isJSLinksRendered) {
 		$isJSLinksRendered = true;
 
-		echo <<<ENDOFSCRIPT
-<script src="?module=chrome&uri=tasks/js/jquery.tablesorter.js"></script>
-<script src="?module=chrome&uri=tasks/js/jquery.tablesorter.pager.js"></script>
-<script src="https://raw.githubusercontent.com/christianbach/tablesorter/master/addons/pager/jquery.tablesorter.pager.js"></script>
-<style>
-	@import url('?module=chrome&uri=tasks/css/themes/blue/style.css');
-	@import url('?module=chrome&uri=tasks/css/jquery.tablesorter.pager.css');
-ENDOFSCRIPT;
+		addJS('tasks/js/jquery.tablesorter.js');
+		addJS('tasks/js/jquery.tablesorter.pager.js');
+		addJS('tasks/js/picnet.table.filter.min.js');
+		addCSS('tasks/css/themes/blue/style.css');
+		addCSS('tasks/css/jquery.tablesorter.pager.css');
 	}
 }
 
