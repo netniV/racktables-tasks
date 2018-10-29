@@ -1,0 +1,33 @@
+<style>
+	.overdue, .late {
+		color: white;
+	}
+
+	.overdue a, .late a {
+		color: white;
+	}
+
+	.pastdue {
+		background: yellow;
+	}
+
+	.overdue {
+		background: orange;
+	}
+
+	.late {
+		background: red;
+	}
+
+	.filtered {
+		display: none;
+	}
+
+	input.tablesorter-filter {
+		width: 100%;
+	}
+
+	.tablesorter-filter:disabled {
+		display: none;
+	}
+</style>

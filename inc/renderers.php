@@ -27,9 +27,12 @@ function renderJSLinks() {
 	if (!$isJSLinksRendered) {
 		$isJSLinksRendered = true;
 
+		addJS('tasks/js/jquery-3.3.1.js');
 		addJS('tasks/js/jquery.tablesorter.js');
-		addJS('tasks/js/jquery.tablesorter.pager.js');
-		addJS('tasks/js/picnet.table.filter.min.js');
+		addJS('tasks/js/jquery.tablesorter.widgets.js');
+		addJS('tasks/js/widget-pager.js');
+		addJS('tasks/js/table.js');
+		addCSS('tasks/css/tasks.css');
 		addCSS('tasks/css/themes/blue/style.css');
 		addCSS('tasks/css/jquery.tablesorter.pager.css');
 	}

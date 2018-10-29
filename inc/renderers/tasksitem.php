@@ -8,30 +8,6 @@ function renderTasksItemsGlobals () {
 
 		renderJSLinks();
 
-		echo <<<ENDOFSTYLE
-<style>
-	.overdue, .late {
-		color: white;
-	}
-
-	.overdue a, .late a {
-		color: white;
-	}
-
-	.pastdue {
-		background: yellow;
-	}
-
-	.overdue {
-		background: orange;
-	}
-
-	.late {
-		background: red;
-	}
-</style>
-ENDOFSTYLE;
-
 		global $remote_username;
 		echo <<<ENDOFSCRIPT
 <script>
@@ -56,15 +32,7 @@ $(function() {
 		$('input[name=completed_time]').val(c);
 		$('input[name=completed_by]').val(u);
 	});
-
-	$("#taskstable").tablesorter({
-		widthFixed: true,
-		dateFormat: "yy-mm-dd",
-		sortReset: true,
-		widgets: ['zebra' ],
-	});
-        $("#taskstable").tablesorterPager({container: $("#pager"), positionFixed: false});
-	$("#taskstable").tableFilter({ positionFixed: false });
+	makeTableSortable('#taskstable');
 });
 </script>
 ENDOFSCRIPT;
@@ -138,7 +106,7 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		startPortlet ($title);
 
 		echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=taskstable name=taskstable>';
-		echo '<thead><tr><th>&nbsp;</th>';
+		echo '<thead><tr><th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 
 		echo '<th>task</th>';
 		echo '<th>definition</th>';
@@ -172,19 +140,20 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		echo '<div id="pager" class="pager"><form>
 		<img src="?module=chrome&uri=tasks/images/first.png" class="first"/>
 		<img src="?module=chrome&uri=tasks/images/prev.png" class="prev"/>
-		<input type="text" class="pagedisplay"/>
+		<span class="pagedisplay" data-pager-output-filtered="{startRow:input} &ndash; {endRow} / {filteredRows} of {totalRows} total rows"></span>
+		<!-- <input type="text" class="pagedisplay"/> -->
 		<img src="?module=chrome&uri=tasks/images/next.png" class="next"/>
 		<img src="?module=chrome&uri=tasks/images/last.png" class="last"/>
 		<select class="pagesize">
-			<option value="">>LIMIT</option>
-			<option value="2">2 per page</option>
 			<option value="5">5 per page</option>
-			<option value="10" selected="selected">10 per page</option>
+			<option value="10">10 per page</option>
 			<option value="20">20 per page</option>
 			<option value="30">30 per page</option>
 			<option value="40">40 per page</option>
 			<option value="50">50 per page</option>
+			<option value="all">all</option>
 		</select>
+		<select class="gotoPage" title="Select page number"></select>
 		</form>
 		</div>';
 		finishPortlet ();
