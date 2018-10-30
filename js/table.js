@@ -4,6 +4,7 @@ function makeTableSortable(element) {
 		// ***********************
 		.tablesorter({
 			theme: 'blue',
+			sortList: [[6,1], [5,1]],
 			widthFixed: true,
 			widgets: ['zebra', 'filter', 'pager' ],
 

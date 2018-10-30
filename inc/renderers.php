@@ -33,8 +33,8 @@ function renderJSLinks() {
 		addJS('tasks/js/widget-pager.js');
 		addJS('tasks/js/table.js');
 		addCSS('tasks/css/tasks.css');
-		addCSS('tasks/css/themes/blue/style.css');
 		addCSS('tasks/css/jquery.tablesorter.pager.css');
+		addCSS('tasks/css/themes/blue/style.css');
 	}
 }
 
