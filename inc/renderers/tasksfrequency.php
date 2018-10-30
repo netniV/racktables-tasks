@@ -75,7 +75,7 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 
 	$now = new DateTime();
 
-	$label = mkA (stringForLabel ($task['name']), 'tasksfrequency', $task['id'], $isVertical?'edit':NULL);
+	$label = mkA (stringForTD ($task['name']), 'tasksfrequency', $task['id'], $isVertical?'edit':NULL);
 	$input = "<input size=24 name=name value='" . htmlspecialchars($task['name']) . "'>";
 	renderTasksEditField ($isViewTab, $isVertical, 'name', $label, $input);
 

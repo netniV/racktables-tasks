@@ -128,7 +128,7 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 		print '<td>&nbsp;</td>';
 	}
 
-	$label = mkA ( stringForLabel ($definition['name']), 'tasksdefinition', $definition['id'], $isVertical?'edit':NULL);
+	$label = mkA ( stringForTD ($definition['name']), 'tasksdefinition', $definition['id'], $isVertical?'edit':NULL);
 	$input = '<input type=text size=24 name=name value="' . $definition['name'] . '">';
 	renderTasksEditField ($isViewTab, $isVertical, 'task', $label, $input);
 
@@ -148,11 +148,11 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	$input = "<input type=text size=24 name=start_time class='tasks-datetime' value='{$label}'>";
 	renderTasksEditField ($isViewTab, $isVertical, 'start_time', $label, $input);
 
-	$label = mkA ( stringForLabel ($definition['frequency_name']), 'tasksfrequency', $definition['frequency_id']);
+	$label = mkA ( stringForTD ($definition['frequency_name']), 'tasksfrequency', $definition['frequency_id']);
 	$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id'), $definition['frequency_id'], FALSE);
 	renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $input);
 
-	$label = mkA ( stringForLabel ($definition['object_name']), 'object', $definition['object_id']);
+	$label = mkA ( stringForTD ($definition['object_name']), 'object', $definition['object_id']);
 	$input = getSelect (getTasksObjectEntities (), array('name' => 'object_id'), $definition['object_id'], FALSE);
 	renderTasksEditField ($isViewTab, $isVertical, 'object', $label, $input);
 

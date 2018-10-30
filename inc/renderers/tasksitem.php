@@ -259,23 +259,23 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		}
 	}
 
-	$label = mkA (stringForLabel ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
-	$input = stringForLabel ($task['name']);
+	$label = mkA (stringForTD ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
+	$input = stringForTD ($task['name']);
 	renderTasksEditField ($isViewTab || !$isVertical, $isVertical, 'task', $label, $input);
 
 	if (empty($task['description'])) {
 		$tasks['description'] = 'definition ' + $task['definition_id'];
 	}
 
-	$label = mkA (stringForLabel ($task['description'], 90), 'tasksdefinition', $task['definition_id']);
+	$label = mkA (stringForTD ($task['description'], 90), 'tasksdefinition', $task['definition_id']);
 	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $label);
 
 	if ($isTasksPage) {
 		if ($object_id) {
-			$label = (empty($task['object_name'])) ? '' : mkA (stringForLabel ($task['object_name']), 'object', $task['object_id']);
+			$label = (empty($task['object_name'])) ? '' : mkA (stringForTD ($task['object_name']), 'object', $task['object_id']);
 			$input = getSelect (getTasksObjectEntities(), array('name' => 'object_id', 'id' => 'id'), $task['object_id'], FALSE);
 		} else {
-			$label = stringForLabel('');
+			$label = stringForTD('');
 			$input = $label;
 		}
 		renderTasksEditField (!$isAddTab, $isVertical, 'object', $label, $input);
