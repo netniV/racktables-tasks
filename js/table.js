@@ -6,7 +6,7 @@ function makeTableSortable(element) {
 			theme: 'blue',
 			sortList: [[5,0]],
 			widthFixed: true,
-			widgets: ['zebra', 'filter', 'pager' ],
+			widgets: [ 'zebra', 'filter', 'pager' ],
 
 			widgetOptions: {
 

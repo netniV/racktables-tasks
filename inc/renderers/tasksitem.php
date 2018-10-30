@@ -216,18 +216,6 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	$page['tasksitem']['parent'] = $object_id ? 'object:tasks' : 'tasks';
 
-	if ($isVertical) {
-		startPortlet ('Tasks Item');
-		echo '<table cellspacing=0 cellpadding=5 align=center>';
-	} else {
-		echo '<td>&nbsp;</td>';
-	}
-
-	if (!$isViewTab) {
-		printOpFormIntro ('upd', array ('task_item_id' => $task['id']));
-		echo '<tr class="$color">';
-	}
-
 	$now = new DateTime();
 	$color = 'transparent';
 	$incomplete = '';
@@ -258,6 +246,18 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 				$color = 'pastdue';
 			}
 		}
+	}
+
+	if ($isVertical) {
+		startPortlet ('Tasks Item');
+		echo '<table cellspacing=0 cellpadding=5 align=center>';
+	} else {
+		echo "<tr class='$color'>";
+		echo '<td>&nbsp;</td>';
+	}
+
+	if (!$isViewTab) {
+		printOpFormIntro ('upd', array ('task_item_id' => $task['id']));
 	}
 
 	$label = mkA (stringForTD ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);

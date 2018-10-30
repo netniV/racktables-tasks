@@ -7,20 +7,21 @@
 		color: white;
 	}
 
-	.pastdue.odd {
-		background: yellow;
+	.tablesorter-blue tbody tr.pastdue.even > td,
+	.tablesorter-blue tbody tr.pastdue.odd > td {
+		background-color: yellow;
 	}
 
-	.pastdue.even {
-		background: #FFFFE0;
+	.tablesorter-blue tbody tr.overdue.even > td,
+	.tablesorter-blue tbody tr.overdue.odd > td {
+		background-color: orange;
+		color: white;
 	}
 
-	.overdue.odd {
-		background: orange;
-	}
-
-	.late.odd {
-		background: red;
+	.tablesorter-blue tbody tr.late.odd > td, 
+	.tablesorter-blue tbody tr.late.even > td {
+		background-color: maroon;
+		color: white;
 	}
 
 	.filtered {
