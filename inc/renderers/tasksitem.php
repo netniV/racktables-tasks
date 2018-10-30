@@ -128,7 +128,7 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 				'<th>notes</th>' .
 				'<th>&nbsp;</th>';
 		}
-
+		echo '<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 		echo '</tr></thead><tbody>';
 
 		$now = new DateTime();
@@ -225,6 +225,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	if (!$isViewTab) {
 		printOpFormIntro ('upd', array ('task_item_id' => $task['id']));
+		echo '<tr class="$color">';
 	}
 
 	$now = new DateTime();
@@ -306,15 +307,17 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		$label = htmlspecialchars ($task['completed'], ENT_QUOTES, 'UTF-8');
 		$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'completed', 'id' => 'completed'), $task['completed']);
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $isEditable ? $input : $label);
+	}
 
-		if ($isComplete) {
-			$incomplete = $task['completed_time'];
-		}
+	if ($isComplete) {
+		$incomplete = $task['completed_time'];
+	}
 
-		$label = $incomplete;
-		$input = '<input type=text name=completed_time value="' . $task['completed_time'] . '">';
-		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $isEditable ? $input : $label, 1, $color);
+	$label = $incomplete;
+	$input = '<input type=text name=completed_time value="' . $task['completed_time'] . '">';
+	renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed', $label, $isEditable ? $input : $label, 1, $color);
 
+	if ($isHistoryTab || $isVertical) {
 		$label = htmlspecialchars ($task['completed_by'], ENT_QUOTES, 'UTF-8');
 		$input = '<input type=text name=completed_by value="' . $task['completed_by'] . '">';
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, 'completed by', $label, $isEditable ? $input : $label);

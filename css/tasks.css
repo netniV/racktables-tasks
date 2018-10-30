@@ -7,15 +7,19 @@
 		color: white;
 	}
 
-	.pastdue {
+	.pastdue.odd {
 		background: yellow;
 	}
 
-	.overdue {
+	.pastdue.even {
+		background: #FFFFE0;
+	}
+
+	.overdue.odd {
 		background: orange;
 	}
 
-	.late {
+	.late.odd {
 		background: red;
 	}
 
