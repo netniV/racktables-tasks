@@ -323,7 +323,12 @@ function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 		}
 
 		if ($completed == 'yes') {
-			$ret = buildRedirectURL ('tasksitem', 'default', array('task_item_id' => $id));
+		        $_PAGE = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
+		        $_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : '';
+
+			$ret = $_PAGE == 'tasks' && empty($_TAB) ?
+				buildRedirectURL ('tasks', 'default') :
+				buildRedirectURL ('tasksitem', 'default', array('task_item_id' => $id));
 		}
 	}
 	recordTasksDebug("updateTasksItem($id) : returns $ret");
