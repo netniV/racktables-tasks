@@ -304,7 +304,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 			. '<div id="' . $prefix . 'dialog" style="display:none"><table width="100%">'
 			. '<tr><td><b>Who:</b></td><td><input type=text name=completed_by value="' . $task['completed_by'] . '"></td>'
 			. '<td><b>When:</b></td><td><input type=text name=completed_time value="' . $task['completed_time'] . '"></td></tr>'
-			. '<tr><td colspan="4"><b>notes:</b></td></tr>'
+			. '<tr><td colspan="4"><b>Notes:</b></td></tr>'
 			. '<tr><td colspan="4"><textarea rows=8 cols=60 name=notes>' . $task['notes'] . '</textarea></td></tr>'
 			. '</table></div>';
 	} else {
