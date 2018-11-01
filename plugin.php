@@ -49,10 +49,6 @@ function plugin_tasks_init ()
 	registerHook ('resetObject_hook', 'plugin_tasks_resetObject');
 	registerHook ('resetUIConfig_hook', 'plugin_tasks_resetUIConfig');
 	registerHook ('dynamic_title_decoder', 'plugin_tasks_decodeTitle', 'before');
-	addCSS("
-	@import url('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css');
-	@import url('https://npmcdn.com/flatpickr/dist/themes/material_blue.css');
-	", true);
 
 	global $plugin_tasks_fkeys;
 	$plugin_tasks_fkeys = array (

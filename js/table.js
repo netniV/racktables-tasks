@@ -1,10 +1,14 @@
-function makeTableSortable(element) {
+function makeTableSortable(element, sort) {
+	if (typeof sort == 'undefined') {
+		sort = [[5,0]];
+	}
 	$(element)
 		// Initialize tablesorter
 		// ***********************
 		.tablesorter({
 			theme: 'blue',
-			sortList: [[5,0]],
+			sortList: sort,
+			cssInfoBlock : "newrow",
 			widthFixed: true,
 			widgets: [ 'zebra', 'filter', 'pager' ],
 
@@ -84,4 +88,115 @@ function makeTableSortable(element) {
 				.append('<li><span class="str">"' + e.type + msg + '</li>')
 				.find('li:first').remove();
 		});
+
+	$('[id^="task_complete_"]').hover(
+		function() {
+			$(this).addClass('fas fa-check').removeClass('far fa-circle');
+		},
+		function() {
+			$(this).addClass('far fa-circle').removeClass('fas fa-check');
+		}
+	).click(function() {
+		var task = $(this);
+		var taskId = task[0].id.replace('task_complete_','');
+		var taskDialog = $('#task_'  + taskId + '_dialog');
+
+		$('#tasksContainer').remove();
+		$('body').append('<div id="tasksContainer" style="display:none"><form method=post id=upd name=upd action="?module=redirect&page=tasks&op=upd"><input type=hidden name="id" value="' + taskId + '"><input type=hidden name="completed" value="yes"></form></div>');
+		$('#tasksContainer form').append(taskDialog.html());
+
+		var taskName = $("#tasksContainer input[name=completed_by]");
+		var taskTime = $("#tasksContainer input[name=completed_time]");
+		var taskNote = $("#tasksContainer textarea[name=notes]");
+
+		taskName.val(getTaskUser());
+		taskTime.val(getTaskDate());
+		taskTime.addClass('tasks-datetime');
+		taskTime.flatpickr(getDateTimePickerDefaults());
+
+		var messageWidth = $(window).width();
+		if (messageWidth > 600) {
+			messageWidth = 600;
+		} else {
+			messageWidth -= 50;
+		}
+
+		$('#tasksContainer').dialog({
+			open: function() {
+				$("#tasksContainer textarea").focus();
+			},
+			modal: true,
+			height: 'auto',
+			minWidth: messageWidth,
+			maxWidth: 800,
+			maxHeight: 600,
+			title: 'Task Completion',
+			buttons: {
+				'Ok' : {
+					text: 'OK',
+					id: 'btnTaskContainerOK',
+					click: function() {
+						$("#tasksContainer form").submit();
+					}
+				},
+				Cancel : function() {
+					$(this).dialog('close');
+				},
+			}
+		});
+	});
 }
+
+function getZeroPrefix(d) {
+	return (d < 10 ? '0' : '') + d;
+}
+
+function getTaskDate() {
+	var d = new Date();
+	var c = d.getFullYear() + '-' + getZeroPrefix(d.getMonth()) + '-' + getZeroPrefix(d.getDate()) + ' ' +
+		getZeroPrefix(d.getHours()) + ':' + getZeroPrefix(d.getMinutes()) + ':' + getZeroPrefix(d.getSeconds());
+	return c;
+}
+
+function getDateTimePickerDefaults() {
+	return {
+		enableTime: true,
+		dateFormat: 'Y-m-d H:i:S',
+		altInput: true,
+		altFormat: 'M j, Y H:i:S',
+		time_24hr: true,
+	};
+}
+
+function makeDateTimePickers() {
+	$('.tasks-datetime').flatpickr(getDateTimePickerDefaults());
+}
+
+$(function() {
+	makeDateTimePickers();
+	$('select[name=completed]').change(function() {
+
+		var completed = $(this).val() == 'yes';
+		var c, u;
+		if (completed) {
+			c = getTaskDate();
+			u = getTaskUser();
+		} else {
+			c = '';
+			u = '';
+		}
+
+		var parent = $(this).parent().parent().parent();
+		var taskTime = parent.find('input[name=completed_time]');
+		var taskName = parent.find('input[name=completed_by]');
+
+		taskName.val(u);
+		taskTime.val(c);
+		var f = taskTime.flatpickr(getDateTimePickerDefaults());
+		f.setDate(c);
+	});
+
+	makeTableSortable('#taskstable');
+	makeTableSortable('#tasksdefinitiontable', [[1,0]]);
+	makeTableSortable('#tasksfrequencytable', [[1,0]]);
+});

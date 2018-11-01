@@ -1,21 +1,12 @@
 <?php
 
-function renderTasksDefinitionGlobals () {
-	static $isRendered = false;
+function renderTasksDefinitionsGlobals () {
+	static $isRenderedTasksDefinitionsGlobal = false;
 
-	if (!$isRendered) {
-		$isRendered = true;
-		echo "<script>$(function() {
-			$.getScript('https://cdn.jsdelivr.net/npm/flatpickr', function() {
-				$('.tasks-datetime').flatpickr({
-					enableTime: true,
-					dateFormat: 'Y-m-d H:i:S',
-					altInput: true,
-					altFormat: 'M j, Y H:i:S',
-					time_24hr: true,
-				});
-			});
-		});</script>";
+	if (!$isRenderedTasksDefinitionsGlobal) {
+		$isRenderedTasksDefinitionsGlobal = true;
+
+		renderJSLinks();
 
 		echo getTasksFrequencyFormatSuggestionList ();
 	}
@@ -23,10 +14,11 @@ function renderTasksDefinitionGlobals () {
 
 function renderTasksDefinitions ()
 {
-	renderTasksDefinitionGlobals ();
+	renderTasksDefinitionsGlobals ();
 
 	function printNewItemTR ()
 	{
+		echo '<tbody class="newrow">';
 		printOpFormIntro ('add');
 		echo '<tr>' .
 			'<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>' .
@@ -39,12 +31,14 @@ function renderTasksDefinitions ()
 			'<td>' . getSelect (getTasksObjectEntities(), array('name' => 'object_id'), 0, FALSE) . '</td>' .
 			'<td>&nbsp;</td>' .
 			'<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>' .
-			'</tr></form>';
+			'</tr></form></tbody>';
 	}
 
-	echo '<table cellspacing=0 cellpadding=5 align=center class=widetable>';
-	echo '<tr>' .
-		'<th>&nbsp;</th>' .
+	startPortlet ('Tasks Definitions');
+
+	echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" name=tasksdefinitiontable id=tasksdefinitiontable>';
+	echo '<thead><tr>' .
+		'<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>' .
 		'<th>task</th>' .
 		'<th>definition</th>' .
 		'<th>enabled</th>' .
@@ -53,30 +47,51 @@ function renderTasksDefinitions ()
 		'<th>frequency</th>' .
 		'<th>object</th>' .
 		'<th>item(s)</th>' .
-		'<th>&nbsp;</th>' .
-		'</tr>';
+		'<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>' .
+		'</tr></thead>';
 
 	if (getConfigVar ('ADDNEW_AT_TOP') == 'yes')
 		printNewItemTR ();
 
+	echo '<tbody>';
 	if (!isset($_REQUEST['tab']) || $_REQUEST['tab'] != 'add') {
 		foreach (getTasksDefinitions () as $definition)
 		{
 			renderTasksDefinition ($definition['id'], false);
 		}
 	}
+	echo '</tbody>';
 
 	if (getConfigVar ('ADDNEW_AT_TOP') != 'yes')
 		printNewItemTR ();
 
 	echo '</table>';
+	echo '<div id="pager" class="pager"><form>
+		<img src="?module=chrome&uri=tasks/images/first.png" class="first"/>
+		<img src="?module=chrome&uri=tasks/images/prev.png" class="prev"/>
+		<span class="pagedisplay" data-pager-output-filtered="{startRow:input} &ndash; {endRow} / {filteredRows} of {totalRows} total rows"></span>
+		<!-- <input type="text" class="pagedisplay"/> -->
+		<img src="?module=chrome&uri=tasks/images/next.png" class="next"/>
+		<img src="?module=chrome&uri=tasks/images/last.png" class="last"/>
+		<select class="pagesize">
+			<option value="5">5 per page</option>
+			<option value="10">10 per page</option>
+			<option value="20">20 per page</option>
+			<option value="30">30 per page</option>
+			<option value="40">40 per page</option>
+			<option value="50">50 per page</option>
+			<option value="all">all</option>
+		</select>
+		<select class="gotoPage" title="Select page number"></select>
+		</form>
+		</div>';
 }
 
 function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 {
 	global $remote_username;
 
-	renderTasksDefinitionGlobals ();
+	renderTasksDefinitionsGlobals ();
 
 	if (isset($_REQUEST['tasks_definition_id'])) {
 		$tasks_definition_id = intval(genericAssertion ('tasks_definition_id', 'uint'));
@@ -130,34 +145,34 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 
 	$label = mkA ( stringForTD ($definition['name']), 'tasksdefinition', $definition['id'], $isVertical?'edit':NULL);
 	$input = '<input type=text size=24 name=name value="' . $definition['name'] . '">';
-	renderTasksEditField ($isViewTab, $isVertical, 'task', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'task', $label, $input);
 
 	$label = htmlspecialchars ($definition['description'], ENT_QUOTES, 'UTF-8');
 	$input = '<input type=text size=48 name=description value="' . $definition['description'] . '">';
-	renderTasksEditField ($isViewTab, $isVertical, 'definition', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'definition', $label, $input);
 
 	$label = $definition['enabled'];
 	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), $definition['enabled']);
-	renderTasksEditField ($isViewTab, $isVertical, 'enabled', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'enabled', $label, $input);
 
 	$label = $definition['mode'];
 	$input = getSelect (getTasksModes(), array ('name' => 'mode'), $definition['mode']);
-	renderTasksEditField ($isViewTab, $isVertical, 'mode', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'mode', $label, $input);
 
 	$label = $definition['start_time'];
 	$input = "<input type=text size=24 name=start_time class='tasks-datetime' value='{$label}'>";
-	renderTasksEditField ($isViewTab, $isVertical, 'start_time', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'start_time', $label, $input);
 
 	$label = mkA ( stringForTD ($definition['frequency_name']), 'tasksfrequency', $definition['frequency_id']);
 	$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id'), $definition['frequency_id'], FALSE);
-	renderTasksEditField ($isViewTab, $isVertical, 'frequency', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'frequency', $label, $input);
 
 	$label = mkA ( stringForTD ($definition['object_name']), 'object', $definition['object_id']);
 	$input = getSelect (getTasksObjectEntities (), array('name' => 'object_id'), $definition['object_id'], FALSE);
-	renderTasksEditField ($isViewTab, $isVertical, 'object', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'object', $label, $input);
 
 	$label = htmlspecialchars ($definition['num_items'], ENT_QUOTES, 'UTF-8');
-	renderTasksEditField ($isViewTab, $isVertical, 'tasks', $label, $label);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'tasks', $label, $label);
 
 	$label = '&nbsp;';
 	if ($tasks_definition_id == 0) {
@@ -165,7 +180,7 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	} else {
 		$input = getImageHREF ('save', 'update this definition', TRUE);
 	}
-	renderTasksEditField ($isViewTab, $isVertical, '', $label, $input);
+	renderTasksEditField ($isViewTab, $isVertical, '', '', $label, $input);
 
 	if ($isVertical) {
 		echo '</tr></form></table>';
