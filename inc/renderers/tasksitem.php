@@ -76,7 +76,8 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 
 		startPortlet ($title);
 
-		echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=taskstable name=taskstable>';
+		$tableName = ($isTasksPage || $isHistoryTab) ? 'taskstable' : 'tasksitemtable';
+		echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=' . $tableName . ' name=' . $tableName . '>';
 		echo '<thead><tr><th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 
 		echo '<th>task</th>';
