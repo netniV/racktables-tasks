@@ -169,7 +169,7 @@ function getZeroPrefix(d) {
 
 function getTaskDate() {
 	var d = new Date();
-	var c = d.getFullYear() + '-' + getZeroPrefix(d.getMonth()) + '-' + getZeroPrefix(d.getDate()) + ' ' +
+	var c = d.getFullYear() + '-' + getZeroPrefix(d.getMonth() + 1) + '-' + getZeroPrefix(d.getDate()) + ' ' +
 		getZeroPrefix(d.getHours()) + ':' + getZeroPrefix(d.getMinutes()) + ':' + getZeroPrefix(d.getSeconds());
 	return c;
 }
