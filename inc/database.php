@@ -92,7 +92,7 @@ function getTasksDefinitions ($definition_id = 0)
 
 	$result = usePreparedSelectBlade
 	(
-		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`enabled`, ' .
+		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`details`, TD.`enabled`, ' .
 		'TD.`mode`, TD.`processed_time`, TD.`created_time`,TD.`start_time`, ' .
 		'TD.`object_id`, O.`name` AS `object_name`, COUNT(TI.`id`) AS num_items, ' .
 		'TF.`name` AS frequency_name, TF.`id` AS frequency_id, TF.`format` AS frequency_format ' .
@@ -107,11 +107,12 @@ function getTasksDefinitions ($definition_id = 0)
 	return reindexById ($result->fetchAll (PDO::FETCH_ASSOC));
 }
 
-function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $start_time, $mode, $object_id) {
+function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $start_time, $mode, $object_id, $details) {
 	$fields = array(
 		'name' => $name,
 		'description' => $description,
 		'enabled' => $enabled,
+		'details' => $details,
 		'frequency_id' => $frequency_id,
 		'start_time' => $start_time,
 		'mode' => $mode,
@@ -128,12 +129,13 @@ function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $s
 	return $id;
 }
 
-function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_id, $mode, $object_id) {
+function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_id, $mode, $object_id, $details) {
 	$fields = array(
 		'id' => $id,
 		'name' => $name,
 		'description' => $description,
 		'enabled' => $enabled,
+		'details' => $details,
 		'mode' => $mode,
 		'frequency_id' => $frequency_id,
 		'object_id' => $object_id,
@@ -232,7 +234,8 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 	$mainSQL = 'SELECT DISTINCT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
 		'TI.`user_name` AS completed_by, TI.`name`, TI.`mode`, TI.`notes`, ' .
 		'TI.`description`, TI.`completed`, TI.`completed_time`, TI.`created_time`, ' .
-		'TF.`id` AS `frequency_id`, TF.`name` AS `frequency_name`, TF.`format` AS `frequency_format` ' .
+		'TD.`details`, TF.`id` AS `frequency_id`, TF.`name` AS `frequency_name`, ' .
+		'TF.`format` AS `frequency_format` ' .
 		'FROM `TasksItem` AS TI ' .
 		'INNER JOIN `TasksDefinition` AS TD ON TD.`id` = TI.`definition_id` ' .
 		$definitionWhere .

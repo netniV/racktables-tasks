@@ -151,6 +151,12 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	$input = '<input type=text size=48 name=description value="' . $definition['description'] . '">';
 	renderTasksEditField ($isViewTab, $isVertical, '', 'definition', $label, $input);
 
+	if ($isVertical) {
+		$label = str_replace("\n",'<br/>', htmlspecialchars($definition['details'], ENT_QUOTES, 'UTF-8'));
+		$input = '<textarea rows=5 cols=48 name=details>' . htmlspecialchars ($definition['details'], ENT_QUOTES, 'UTF-8') . '</textarea>';
+		renderTasksEditField ($isViewTab, $isVertical, '', 'details', $label, $input);
+	}
+
 	$label = $definition['enabled'];
 	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), $definition['enabled']);
 	renderTasksEditField ($isViewTab, $isVertical, '', 'enabled', $label, $input);

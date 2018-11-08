@@ -255,6 +255,11 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		renderTasksEditField (!$isAddTab, $isVertical, $prefix . 'object', 'object', $label, $input);
 	}
 
+	if ($isVertical && $isViewTab) {
+		$label = str_replace("\n",'<br/>', htmlspecialchars($task['details'], ENT_QUOTES, 'UTF-8'));
+		renderTasksEditField ($isViewTab, $isVertical, '', 'details', $label, $label);
+	}
+
 	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
 	renderTasksEditField ($isViewTab, $isVertical, $prefix . 'mode', 'mode', $label, $label);
 

@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `name` char(64) DEFAULT NULL,
  `description` char(255) DEFAULT NULL,
+ `details` text DEFAULT NULL,
  `mode` enum('due', 'schedule') NOT NULL DEFAULT 'due',
  `enabled` enum('yes','no') NOT NULL DEFAULT 'no',
  `frequency_id` int(10) unsigned NOT NULL,
