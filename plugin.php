@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
  `completed` enum('yes','no') NOT NULL DEFAULT 'no',
  `completed_time` timestamp NULL DEFAULT NULL,
  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- `notes` char(255) DEFAULT NULL,
+ `notes` TEXT DEFAULT NULL,
  PRIMARY KEY (`id`,`object_id`),
  KEY `object_id` (`object_id`),
  KEY `user_name` (`user_name`),
