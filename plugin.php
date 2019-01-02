@@ -61,6 +61,8 @@ function plugin_tasks_init ()
 
 function plugin_tasks_enable ()
 {
+	global $dbxlink;
+
 	// Add tasks to top tabs
 	$dbxlink->query("UPDATE `Config` SET varvalue=CONCAT(varvalue,',tasks')
 		WHERE varname = 'QUICK_LINK_PAGES'

@@ -29,7 +29,7 @@ function renderTasksDefinitions ()
 			'<td><input type=text size=24 name=start_time class="tasks-datetime"></td>' .
 			'<td>' . getSelect (getTasksFrequencyEntities(), array('name' => 'frequency_id'), 0, FALSE) . '</td>' .
 			'<td>' . getSelect (getTasksObjectEntities(), array('name' => 'object_id'), 0, FALSE) . '</td>' .
-			'<td>&nbsp;</td>' .
+			'<td>&nbsp;<input type=hidden name=details value=""></td>' .
 			'<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>' .
 			'</tr></form></tbody>';
 	}
