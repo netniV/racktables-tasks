@@ -52,7 +52,7 @@ function addTasksDefinition () {
 		assertTasksParam ('start_time', 'datetime'),
 		assertTasksParam ('mode', 'enum/mode'),
 		assertTasksParam ('object_id', 'uint0'),
-		assertTasksParam ('details', 'string')
+		assertTasksParam ('details', 'string0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }

@@ -20,7 +20,9 @@ function getTasksFrequencyEntities () {
 		'ORDER BY `name`'
 	);
 
-	return reduceSubarraysToColumn (reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
+	$ret = reduceSubarraysToColumn (reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
+	asort($ret);
+	return $ret;
 }
 
 function getTasksFrequencies ($frequency_id = 0) {
