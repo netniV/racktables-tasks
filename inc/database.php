@@ -3,11 +3,12 @@
 function getTasksObjectEntities() {
 	$result = usePreparedSelectBlade
 	(
-		'SELECT 0 as `id`, \'none\' as `name`
-		UNION
-		(SELECT `id`, `name` FROM `Object` ORDER BY `name`)'
+		'SELECT `id`, `name` FROM `Object` ORDER BY `name`'
 	);
-	return reduceSubarraysToColumn(reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
+
+	$ret = reduceSubarraysToColumn(reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
+	asort($ret);
+	return array_merge(array(0 => 'none'), $ret);
 }
 
 /*** TASKS FREQUENCIES ***/
