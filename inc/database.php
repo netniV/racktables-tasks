@@ -7,8 +7,12 @@ function getTasksObjectEntities() {
 	);
 
 	$ret = reduceSubarraysToColumn(reindexById ($result->fetchAll (PDO::FETCH_ASSOC), 'id'), 'name');
-	asort($ret);
-	return array_merge(array(0 => 'none'), $ret);
+	uasort($ret, 'strcasecmp');
+	$array = array(0 => 'none');
+	foreach ($ret as $key=>$item) {
+		$array[$key] = $item;
+	}
+	return $array;
 }
 
 /*** TASKS FREQUENCIES ***/
