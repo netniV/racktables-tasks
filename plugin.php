@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . '/inc/database.php');
 require_once(__DIR__ . '/inc/functions.php');
+require_once(__DIR__ . '/inc/compat.php');
 
 /* Dynamic section loaders */
 require_once(__DIR__ . '/inc/navigation.php');
@@ -12,7 +13,7 @@ function plugin_tasks_info ()
 	(
 		'name' => 'tasks',
 		'longname' => 'Tasks',
-		'version' => '1.0',
+		'version' => '1.1',
 		'home_url' => 'http://www.github.com/netniv/racktables-tasks/'
 	);
 }
@@ -85,17 +86,17 @@ CREATE TABLE IF NOT EXISTS `TasksFrequency` (
 ) ENGINE=InnoDB");
 
 	$dbxlink->query ("
-INSERT INTO TasksFrequency (name, format) VALUES ('Daily','tomorrow');
-INSERT INTO TasksFrequency (name, format) VALUES ('Daily @ Noon','tomorrow 12:00');
-INSERT INTO TasksFrequency (name, format) VALUES ('First Tuesday','first tuesday of next month');
-INSERT INTO TasksFrequency (name, format) VALUES ('Last Thursday','last thursday of next month');
-INSERT INTO TasksFrequency (name, format) VALUES ('Every Friday','next friday');
-INSERT INTO TasksFrequency (name, format) VALUES ('Every Monday','next monday');
-INSERT INTO TasksFrequency (name, format) VALUES ('Every Wednesday','next wednesday');
-INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 1st','first day of this month; next month');
-INSERT INTO TasksFrequency (name, format) VALUES ('Monthly 15th','first day of this month; next month; +15 days');
-INSERT INTO TasksFrequency (name, format) VALUES ('Quarterly','first day of this month, +3 months midnight');
-INSERT INTO TasksFrequency (name, format) VALUES ('Semi-Annual 1st','first day of this month, +6 months midnight');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Daily','tomorrow');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Daily @ Noon','tomorrow 12:00');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('First Tuesday','first tuesday of next month');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Last Thursday','last thursday of next month');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Every Friday','next friday');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Every Monday','next monday');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Every Wednesday','next wednesday');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Monthly 1st','first day of this month; next month');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Monthly 15th','first day of this month; next month; +15 days');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Quarterly','first day of this month, +3 months midnight');
+INSERT IGNORE INTO TasksFrequency (name, format) VALUES ('Semi-Annual 1st','first day of this month, +6 months midnight');
 ");
 	$dbxlink->query ("
 CREATE TABLE IF NOT EXISTS `TasksDefinition` (
@@ -137,10 +138,9 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
  CONSTRAINT `TasksItem-FK-definition_id` FOREIGN KEY (`definition_id`) REFERENCES `TasksDefinition` (`id`)
 ) ENGINE=InnoDB");
 
-//SELECT * FROM `Config` WHERE varname = 'QUICK_LINK_PAGES' AND varvalue NOT LIKE '%,tasks' and varvalue NOT LIKE '%,tasks,%';
-
 	addConfigVar ('TASKS_LISTSRC', 'false', 'string', 'yes', 'no', 'no', 'List of object with Tasks');
-//	addConfigVar ('CACTI_RRA_ID', '1', 'uint', 'no', 'no', 'yes', 'RRA ID for Tasks graphs displayed in RackTables');
+	addConfigVar ('TASKS_HIDE_MODE', 'false', 'string', 'yes', 'no', 'no', 'Hide mode column when displaying tasks');
+	addConfigVar ('TASKS_DATE_ONLY', 'false', 'string', 'yes', 'no', 'no', 'Show dates (no time) when not vertiical');
 
 	plugin_tasks_enable();
 
@@ -159,6 +159,9 @@ function plugin_tasks_disable ()
 function plugin_tasks_uninstall ()
 {
 	deleteConfigVar ('TASKS_LISTSRC');
+	deleteConfigVar ('TASKS_HIDE_MODE');
+	deleteConfigVar ('TASKS_DATE_ONLY');
+
 //	deleteConfigVar ('CACTI_RRA_ID');
 
 	global $dbxlink;
@@ -172,6 +175,77 @@ function plugin_tasks_uninstall ()
 
 function plugin_tasks_upgrade ()
 {
+	$db_info = getPlugin('tasks');
+	$v1 = $db_info['db_version'];
+	$code_info = plugin_tasks_info();
+	$v2 = $code_info['version'];
+
+	if ($v1 == $v2) return TRUE;
+
+	$versionhistory = array
+	(
+		'1.0',
+		'1.1',
+	);
+
+	$skip = TRUE;
+	$path = NULL;
+
+	foreach ($versionhistory as $vh)
+	{
+		if ($skip && ($vh == $v1))
+		{
+			$skip = FALSE;
+			$path = array();
+			continue;
+		}
+
+		if ($skip) continue;
+
+		$path[] = $vh;
+		if ($vh == $v2) break;
+	}
+
+	if ($path == NULL || !count($path))
+		throw new RackTablesError ('Unable to determine upgrade path', RackTablesError::INTERNAL);
+
+	// build the list of queries to execute
+
+	$queries = array();
+	foreach ($path as $v)
+	{
+		switch ($v)
+		{
+			case '1.1':
+				if (!existsConfigVar('TASKS_LISTSRC'))
+					addConfigVar ('TASKS_LISTSRC', 'false', 'string', 'yes', 'no', 'no', 'List of object with Tasks');
+				if (!existsConfigVar('TASKS_HIDE_MODE'))
+					addConfigVar ('TASKS_HIDE_MODE', 'false', 'string', 'yes', 'no', 'no', 'Hide mode column when displaying tasks');
+				if (!existsConfigVar('TASKS_DATE_ONLY'))
+					addConfigVar ('TASKS_DATE_ONLY', 'false', 'string', 'yes', 'no', 'no', 'Show dates (no time) when not vertical');
+
+				break;
+			default:
+				throw new RackTablesError("Preparing to upgrade to $v failed", RackTablesError::INTERNAL);
+		}
+		$queries[] = "UPDATE Plugin SET version = '$v' WHERE name = 'tasks'";
+	}
+
+	// execute the queries
+	global $dbxlink;
+	foreach ($queries as $q)
+	{
+		try
+		{
+			$result = $dbxlink->query ($q);
+		}
+		catch (PDOException $e)
+		{
+			$errorInfo = $dbxlink->errorInfo();
+			throw new RackTablesError ("Query: ${errorInfo[2]}", RackTablesError::INTERNAL);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -204,6 +278,8 @@ function plugin_tasks_resetObject ($object_id)
 function plugin_tasks_resetUIConfig ()
 {
 	setConfigVar ('TASKS_LISTSRC', 'false');
+	setConfigVar ('TASKS_HIDE_MODE', 'false');
+	setConfigVar ('TASKS_DATE_ONLY', 'false');
 //	setConfigVar ('CACTI_RRA_ID', '1');
 }
 

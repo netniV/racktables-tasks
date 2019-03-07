@@ -85,20 +85,29 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		if ($isTasksPage) {
 			echo '<th>object</th>';
 		}
-		echo '<th>mode</th>';
+
+		if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
+			echo '<th>type</th>';
+		}
 
 		echo '<th>date</th>';
 
-		if ($isHistoryTab) {
+		if (!$isTasksPage) {
 			echo	'<th>completed</th>';
 		}
 
-		echo '<th>due or completed time</th>';
+		if (!$isTasksPage || $isHistoryTab) {
+			echo '<th>due or completed time</th>';
+		}
 
 		if ($isHistoryTab) {
-			echo	'<th>user</th>' .
-				'<th>notes</th>';
+			echo	'<th>user</th>';
 		}
+
+		if (!$isTasksPage || $isHistoryTab) {
+			echo	'<th>notes</th>';
+		}
+
 		echo '<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 		echo '</tr></thead><tbody>';
 
@@ -256,14 +265,16 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	}
 
 	if ($isVertical && $isViewTab) {
-		$label = str_replace("\n",'<br/>', htmlspecialchars($task['details'], ENT_QUOTES, 'UTF-8'));
+		$label = str_replace("\n",'<br/>', htmlspecialchars ($task['details'], ENT_QUOTES, 'UTF-8'));
 		renderTasksEditField ($isViewTab, $isVertical, '', 'details', $label, $label);
 	}
 
-	$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
-	renderTasksEditField ($isViewTab, $isVertical, $prefix . 'mode', 'mode', $label, $label);
+	if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
+		$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
+		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'mode', 'mode', $label, $label);
+	}
 
-	$label = htmlspecialchars ($task['created_time'], ENT_QUOTES, 'UTF-8');
+	$label = htmlspecialchars (getTasksDateTime ($task['created_time'], $isVertical), ENT_QUOTES, 'UTF-8');
 	renderTasksEditField ($isViewTab, $isVertical, $prefix . 'date', 'date', $label, $label);
 
 	$isComplete = $task['completed'] == 'yes';
@@ -271,39 +282,45 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	if (isTasksDebugUser()) {
 		echo $task['id'] . ' : ';
-		echo $isComplete ? "COMPLETED" : "INCOMPLETE";
+		echo $isTasksPage ? "TasksPage" : "";
 		echo " ";
-		echo $isViewTab ? "VIEW" : "EDIT";
+		echo $isComplete ? "Complete" : "";
 		echo " ";
-		echo $isVertical ? "VERTICAL" : "HORIZONTAL";
+		echo $isViewTab ? "View" : "";
 		echo " ";
-		echo $isEditable ? "EDITABLE" : "READONLY";
+		echo $isVertical ? "Vertical" : "";
+		echo " ";
+		echo $isEditable ? "Editable" : "";
 		echo "<br>\n";
 	}
 
-	if ($isHistoryTab || $isVertical) {
+	if (!$isTasksPage) {
 		$label = htmlspecialchars ($task['completed'], ENT_QUOTES, 'UTF-8');
 		$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'completed', 'id' => 'completed'), $task['completed']);
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, $prefix . 'completed', 'completed', $label, $isEditable ? $input : $label);
 	}
 
 	if ($isComplete) {
-		$incomplete = $task['completed_time'];
+		$incomplete = getTasksDateTime($task['completed_time'], $isVertical);
 	}
 
-	if ($isHistoryTab || $isVertical) {
+	if (!$isTasksPage || $isHistoryTab) {
 		$label = $incomplete;
 		$input = '<input type=text name=completed_time class="tasks-datetime" value="' . $task['completed_time'] . '">';
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, $prefix . 'completed_time', 'when', $label, $isEditable ? $input : $label, 1, $color);
+	}
 
+	if ($isHistoryTab || $isVertical) {
 		$label = htmlspecialchars ($task['completed_by'], ENT_QUOTES, 'UTF-8');
 		$input = '<input type=text name=completed_by value="' . $task['completed_by'] . '">';
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, $prefix . 'completed_by', 'who', $label, $isEditable ? $input : $label);
 	}
 
-	$label = htmlspecialchars ($task['notes'], ENT_QUOTES, 'UTF-8');
-	$input = '<textarea rows=4 cols=48 name=notes>' . $label . '</textarea>';
-	renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, $prefix . 'notes', 'notes', $label, $isEditable ? $input : $label);
+	if (!$isTasksPage || $isHistoryTab) {
+		$label = htmlspecialchars ($task['notes'], ENT_QUOTES, 'UTF-8');
+		$input = '<textarea rows=4 cols=48 name=notes>' . $label . '</textarea>';
+		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, $prefix . 'notes', 'notes', $label, $isEditable ? $input : $label);
+	}
 
 	if ($isTasksPage && !$isComplete) {
 		$label = '<i id="task_complete_' . $task['id'] . '" class="far fa-circle"></i>'

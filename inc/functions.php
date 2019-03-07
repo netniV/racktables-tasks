@@ -46,6 +46,19 @@ function getTasksDiffValue($date1, $date2) {
 	return $date2->diff($date1)->format('%a');;
 }
 
+function getTasksDateTime($date, $inc_time = false) {
+	$format = 'Y-m-d';
+
+	//Do we also want time?
+	if ($inc_time || getConfigVar ('TASKS_DATE_ONLY') != 'yes')
+	{
+		$format .= ' h:i:s';
+	}
+
+	$obj = new DateTime($date);
+	return $obj->format($format);
+}
+
 function getTasksNextDue($freq, $date = null, $throw = true) {
 	$date_orig = $date != null ? $date : new DateTime();
 	$date_freq = clone($date_orig);
