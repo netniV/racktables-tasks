@@ -44,19 +44,19 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		$title = 'Tasks';
 	} else {
 		$isHistoryTab = $_TAB == 'tasksitem';
-		$title = $isHistoryTab ? 'Tasks History' : 'Tasks Outstanding';
+		$title = $isHistoryTab ? 'Tasks' : 'Tasks Outstanding';
 	}
 
 	$isAddTab = $_TAB == 'add';
 	$tasks = array();
-	if (!$isTasksPage || ($isTasksPage && !$isHistoryTab)) {
+	if (!$isHistoryTab || ($isHistoryTab && !$isTasksPage)) {
 		$temp  = getTasksItems ($object_id, 'no', 0, $task_definition_id);
 		if ($temp !== false && sizeof($temp)) {
 			$tasks = array_merge($tasks, $temp);
 		}
 	}
 
-	if (!$isTasksPage || ($isTasksPage && $isHistoryTab)) {
+	if ($isHistoryTab) {
 		$temp  = getTasksItems ($object_id, 'yes', 0, $task_definition_id);
 		if ($temp !== false && sizeof($temp)) {
 			$tasks = array_merge($tasks, $temp);
@@ -162,7 +162,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : '';
 
 	if (isTasksDebugUser()) {
-		echo "renderTasksItem (id: $task_item_id, isVertical: $isVertical, isTasksPage: $isTasksPage)<br/>";
+		echo "renderTasksItem (id: $task_item_id, isVertical: $isVertical, isTasksPage: $isTasksPage, isHistoryTab: $isHistoryTab)<br/>";
 	}
 
 	global $page, $tab, $remote_username;
