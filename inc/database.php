@@ -126,13 +126,10 @@ function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $s
 		'object_id' => $object_id,
 	);
 
-	$id = usePreparedInsertBlade
-	(
-		'TasksDefinition',
-		$fields
-	);
-
-	ensureTasksDefinitionNextDue ($id);
+	if (usePreparedInsertBlade ('TasksDefinition',$fields)) {
+		$id = lastInsertID();
+		ensureTasksDefinitionNextDue ($id);
+	}
 	return $id;
 }
 
@@ -179,12 +176,17 @@ function ensureTasksDefinitionNextDue ($id) {
 	if ($definition) {
 		recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): found: ' . json_encode($definition));
 		$definition = reset($definition);
+	} else {
+		recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): not found!');
+		$definition = array('enabled' => 'missing', 'mode' => 'missing');
 	}
 
+	recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): Enabled: ' . $definition['enabled'] . ', Mode: ' . $definition['mode']);
 	if ($definition && $definition['enabled'] == 'yes' && $definition['mode'] == 'due') {
 		$last_select = usePreparedSelectBlade ("SELECT id, completed, created_time FROM TasksItem WHERE definition_id = ? ORDER BY created_time DESC, id DESC LIMIT 1", array($id));
 		$last = $last_select->fetch (PDO::FETCH_ASSOC);
 
+		recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): last: ' . var_export($last, true));
 		if (!isset($last['completed']) || $last['completed'] == 'yes') {
 			$base = $definition['start_time'] ? $definition['start_time'] : $definition['created_time'];
 			if (isset($last['created_time'])) {
@@ -201,6 +203,10 @@ function ensureTasksDefinitionNextDue ($id) {
 			echo "NT: " . $next->format('Y-m-d H:i:s') . "\n";
 			*/
 
+			recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): insertTasksItem(' . $definition['id'] .
+				', ' . $definition['mode'] . ', ' . $definition['name'] .', ' . $definition['description'] .
+				', ' . $definition['object_id'] . ', ' . $next->format('Y-m-d H:i:s') .
+				')');
 			insertTasksItem($definition['id'], $definition['mode'], $definition['name'], $definition['description'], $definition['object_id'], $next->format('Y-m-d H:i:s'));
 		}
 	} else {

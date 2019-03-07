@@ -295,7 +295,7 @@ function plugin_tasks_decodeTitle($no) {
 				'tab' => 'default',
 			)
 		);
-		recordTasksDebug("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));
+		//recordTasksDebug("plugin_tasks_decodeTitle: Handled $no - " . json_encode($title));
 	}
 
 	if ($no == 'object:tasks') {
@@ -333,12 +333,12 @@ function plugin_tasks_decodeTitle($no) {
 
 	if (!empty($title)) {
 		stopHookPropagation ();
-		recordTasksDebug('decodeTitle("' . $no . '"): returned ' . json_encode($title));
+//		recordTasksDebug('decodeTitle("' . $no . '"): returned ' . json_encode($title));
 		return $title;
 	}
 
 	if (!in_array($no, array('object','ipv4space'))) {
-		recordTasksDebug('decodeTitle("' . $no . '"): unhandled');
+//		recordTasksDebug('decodeTitle("' . $no . '"): unhandled');
 	}
 	return $no;
 }

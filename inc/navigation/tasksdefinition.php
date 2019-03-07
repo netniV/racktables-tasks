@@ -33,6 +33,7 @@ function initTasksNavigationTasksDefinition() {
 	registerTabHandler ('tasksdefinition', 'default', 'renderTasksDefinition');
 	registerTabHandler ('tasksdefinition', 'edit',    'renderTasksDefinition');
 
+	registerOpHandler ('tasksdefinitions', 'default', 'add', 'addTasksDefinition');
 	registerOpHandler ('tasksdefinition', 'edit', 'add', 'addTasksDefinition');
 	registerOpHandler ('tasksdefinition', 'edit', 'upd', 'updTasksDefinition');
 
