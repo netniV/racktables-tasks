@@ -50,7 +50,7 @@ function addTasksDefinition () {
 		assertTasksParam ('enabled', 'enum/yesno'),
 		assertTasksParam ('frequency_id', 'uint0'),
 		assertTasksParam ('start_time', 'datetime'),
-		assertTasksParam ('mode', 'enum/mode'),
+		assertTasksParam ('type', 'enum/mode'),
 		assertTasksParam ('object_id', 'uint0'),
 		assertTasksParam ('details', 'string0')
 	);
