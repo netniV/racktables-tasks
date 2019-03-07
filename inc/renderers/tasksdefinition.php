@@ -34,7 +34,7 @@ function renderTasksDefinitions ()
 			'</tr></form></tbody>';
 	}
 
-	startPortlet ('Tasks Definitions');
+	startPortlet ('Task Definitions');
 
 	echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" name=tasksdefinitiontable id=tasksdefinitiontable>';
 	echo '<thead><tr>' .
