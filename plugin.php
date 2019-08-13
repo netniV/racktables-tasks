@@ -13,7 +13,7 @@ function plugin_tasks_info ()
 	(
 		'name' => 'tasks',
 		'longname' => 'Tasks',
-		'version' => '1.1',
+		'version' => '1.2',
 		'home_url' => 'http://www.github.com/netniv/racktables-tasks/'
 	);
 }
@@ -42,7 +42,6 @@ function plugin_tasks_init ()
 		set_error_handler("tasks_exception_error_handler");
 	}
 
-
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 
 	initTasksNavigation();
@@ -60,17 +59,26 @@ function plugin_tasks_init ()
 	);
 }
 
-function plugin_tasks_enable ()
+function plugin_tasks_vars ()
 {
-	global $dbxlink;
+	static $plugin_tasks_vars;
 
-	// Add tasks to top tabs
-	$dbxlink->query("UPDATE `Config` SET varvalue=CONCAT(varvalue,',tasks')
-		WHERE varname = 'QUICK_LINK_PAGES'
-		AND varvalue NOT LIKE '%,tasks'
-		AND varvalue NOT LIKE '%,tasks,%';");
+	if (empty($plugin_tasks_vars)) {
+		$plugin_tasks_vars = array(
+			'1.1' => array(
+				array('name' => 'TASK_LISTSRC',    'type' => 'string', 'default' => 'false', 'desc' => 'List of object with Tasks'),
+				array('name' => 'TASKS_HIDE_MODE', 'type' => 'string', 'default' => 'false', 'desc' => 'Hide mode column when displaying tasks'),
+				array('name' => 'TASKS_DATE_ONLY', 'type' => 'string', 'default' => 'false', 'desc' => 'Show dates (no time) when not vertiical'),
+			),
+			'1.2' => array(
+				array('name' => 'TASKS_TEXT_DUE',      'type' => 'string', 'default' => 'next due',      'desc' => 'Text for Frequency tyoe'),
+				array('name' => 'TASKS_TEXT_SCHEDULE', 'type' => 'string', 'default' => 'scheduled',     'desc' => 'Text for Schedule type'),
+				array('name' => 'TASKS_TEXT_COMPLETE', 'type' => 'string', 'default' => 'on completion', 'desc' => 'Text for Completion type'),
+			),
+		);
+	}
 
-	return TRUE;
+	return $plugin_tasks_vars;
 }
 
 function plugin_tasks_install ()
@@ -82,7 +90,8 @@ CREATE TABLE IF NOT EXISTS `TasksFrequency` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `name` char(64) DEFAULT NULL,
  `format` char(255) DEFAULT NULL,
- PRIMARY KEY (`id`)
+ PRIMARY KEY (`id`),
+ CONSTRAINT uk_name UNIQUE (`name`)
 ) ENGINE=InnoDB");
 
 	$dbxlink->query ("
@@ -104,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `name` char(64) DEFAULT NULL,
  `description` char(255) DEFAULT NULL,
  `details` text DEFAULT NULL,
- `mode` enum('due', 'schedule') NOT NULL DEFAULT 'due',
+ `mode` enum('due', 'schedule', 'complete') NOT NULL DEFAULT 'due',
  `enabled` enum('yes','no') NOT NULL DEFAULT 'no',
  `frequency_id` int(10) unsigned NOT NULL,
  `object_id` int(10) unsigned NOT NULL,
@@ -124,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
  `definition_id` int(10) unsigned NOT NULL,
  `object_id` int(10) unsigned NOT NULL,
  `user_name` varchar(24) NOT NULL DEFAULT '',
- `mode` enum('due', 'schedule') NOT NULL DEFAULT 'due',
+ `mode` enum('due', 'schedule', 'complete') NOT NULL DEFAULT 'due',
  `name` char(64) DEFAULT NULL,
  `description` char(255) DEFAULT NULL,
  `completed` enum('yes','no') NOT NULL DEFAULT 'no',
@@ -138,37 +147,78 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
  CONSTRAINT `TasksItem-FK-definition_id` FOREIGN KEY (`definition_id`) REFERENCES `TasksDefinition` (`id`)
 ) ENGINE=InnoDB");
 
-	addConfigVar ('TASKS_LISTSRC', 'false', 'string', 'yes', 'no', 'no', 'List of object with Tasks');
-	addConfigVar ('TASKS_HIDE_MODE', 'false', 'string', 'yes', 'no', 'no', 'Hide mode column when displaying tasks');
-	addConfigVar ('TASKS_DATE_ONLY', 'false', 'string', 'yes', 'no', 'no', 'Show dates (no time) when not vertiical');
+	// Add tasks to top tabs
+	$dbxlink->query("UPDATE `Config` SET varvalue=CONCAT(varvalue,',tasks')
+		WHERE varname = 'QUICK_LINK_PAGES'
+		AND varvalue NOT LIKE '%,tasks'
+		AND varvalue NOT LIKE '%,tasks,%';");
 
-	plugin_tasks_enable();
+	$dbxlink->query("UPDATE `Config` SET varvalue=REPLACE(varvalue,',,',',')
+		WHERE varname = 'QUICK_LINK_PAGES';");
+
+	plugin_tasks_vars_add();
 
 	return TRUE;
 }
 
-function plugin_tasks_disable ()
+function plugin_tasks_vars_add ($reset = false) {
+	recordTasksDebug('plugin_tasks_vars_add(): Start');
+	$configVars = plugin_tasks_vars();
+	foreach ($configVars as $ver => $vars) {
+		recordTasksDebug('plugin_tasks_vars_add(): v' . $ver);
+
+		foreach ($vars as $var) {
+			$exists = existsConfigVar($var['name']);
+			recordTasksDebug('plugin_tasks_vars_add: ['.$var['name'].'] ' . ($exists?'':'NOT '). ' exists');
+			if (!$exists) {
+				recordTasksDebug('plugin_tasks_vars_add: ['.$var['name'].'] addConfigVar ("' . $var['name'] .
+					'", "' . $var['default'] . '", "' . $var['type'] . '", "yes", "no", "no", "' . $var['desc'] .
+					'");');
+				addConfigVar ($var['name'], $var['default'],  $var['type'], "yes", "no", "no", $var['desc']);
+			} elseif ($reset) {
+				recordTasksDebug('plugin_tasks_vars_add: ['.$var['name'].'] setConfigVar ("' . $var['name'] .
+					'", "' . $var['default'] . '");');
+				setConfigVar ($var['name'], $var['default']);
+			}
+		}
+	}
+	recordTasksDebug('plugin_tasks_vars_add(): End');
+}
+
+function plugin_tasks_vars_delete () {
+	recordTasksDebug('plugin_tasks_vars_delete(): Start');
+	$configVars = plugin_tasks_vars();
+	foreach ($configVars as $ver => $vars) {
+		recordTasksDebug('plugin_tasks_vars_delete(): v' + $ver);
+
+		foreach ($vars as $var) {
+			$exists = existsConfigVar($var['name']);
+			recordTasksDebug('plugin_tasks_vars_delete('.$ver.'): ['.$var['name'].'] ' . ($exists?'':'NOT '). ' exists');
+			if (!existsConfigVar($var['name'])) {
+				recordTasksDebug('plugin_tasks_vars_delete: ['.$var['name'].'] deleteConfigVar ("' . $var['name'] .
+					'");');
+				deleteConfigVar ($var['name']);
+			}
+		}
+	}
+	recordTasksDebug('plugin_tasks_vars_delete(): End');
+}
+
+function plugin_tasks_uninstall ()
 {
+	plugin_tasks_vars_delete();
+
+	global $dbxlink;
+
 	// Add tasks to top tabs
 	$dbxlink->query("UPDATE `Config` SET varvalue=REPLACE(varvalue,',tasks','')
 		WHERE varname = 'QUICK_LINK_PAGES'
 		AND varvalue LIKE '%,tasks'
 		AND varvalue LIKE '%,tasks,%';");
-}
 
-function plugin_tasks_uninstall ()
-{
-	deleteConfigVar ('TASKS_LISTSRC');
-	deleteConfigVar ('TASKS_HIDE_MODE');
-	deleteConfigVar ('TASKS_DATE_ONLY');
-
-//	deleteConfigVar ('CACTI_RRA_ID');
-
-	global $dbxlink;
+	$dbxlink->query	("DROP TABLE `TasksFrequency`");
 	$dbxlink->query	("DROP TABLE `TasksItem`");
 	$dbxlink->query	("DROP TABLE `TasksDefinition`");
-
-	plugin_tasks_disable();
 
 	return TRUE;
 }
@@ -186,6 +236,7 @@ function plugin_tasks_upgrade ()
 	(
 		'1.0',
 		'1.1',
+		'1.2',
 	);
 
 	$skip = TRUE;
@@ -216,14 +267,15 @@ function plugin_tasks_upgrade ()
 	{
 		switch ($v)
 		{
-			case '1.1':
-				if (!existsConfigVar('TASKS_LISTSRC'))
-					addConfigVar ('TASKS_LISTSRC', 'false', 'string', 'yes', 'no', 'no', 'List of object with Tasks');
-				if (!existsConfigVar('TASKS_HIDE_MODE'))
-					addConfigVar ('TASKS_HIDE_MODE', 'false', 'string', 'yes', 'no', 'no', 'Hide mode column when displaying tasks');
-				if (!existsConfigVar('TASKS_DATE_ONLY'))
-					addConfigVar ('TASKS_DATE_ONLY', 'false', 'string', 'yes', 'no', 'no', 'Show dates (no time) when not vertical');
+			case '1.2':
+				$queries[] = "ALTER TABLE `TasksItem` MODIFY `mode` enum('due', 'schedule', 'complete') NOT NULL DEFAULT 'due'";
+				$queries[] = "ALTER TABLE `TasksDefinition` MODIFY `mode` enum('due', 'schedule', 'complete') NOT NULL DEFAULT 'due'";
+				$queries[] = "ALTER TABLE `TasksFrequency` ADD  CONSTRAINT uk_name UNIQUE (`name`);";
 
+				plugin_tasks_vars_add ();
+				break;
+			case '1.1':
+				plugin_tasks_vars_add ();
 				break;
 			default:
 				throw new RackTablesError("Preparing to upgrade to $v failed", RackTablesError::INTERNAL);
@@ -277,10 +329,7 @@ function plugin_tasks_resetObject ($object_id)
 
 function plugin_tasks_resetUIConfig ()
 {
-	setConfigVar ('TASKS_LISTSRC', 'false');
-	setConfigVar ('TASKS_HIDE_MODE', 'false');
-	setConfigVar ('TASKS_DATE_ONLY', 'false');
-//	setConfigVar ('CACTI_RRA_ID', '1');
+	plugin_tasks_vars_add (true);
 }
 
 function plugin_tasks_decodeTitle($no) {
@@ -327,7 +376,7 @@ function plugin_tasks_decodeTitle($no) {
 					'page' => 'object',
 					'object_id' => $object_id
 				)
-			);				
+			);
 		}
 	}
 

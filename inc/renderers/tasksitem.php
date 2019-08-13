@@ -201,7 +201,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$color = 'transparent';
 	$incomplete = '';
 
-	if ($task['completed'] == 'no' && $task['mode'] == 'due') {
+	if ($task['completed'] == 'no' && $task['mode'] != 'schedule') {
 		$created = new DateTime($task['created_time']);
 		$diff  = $now->diff($created);
 
@@ -270,7 +270,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	}
 
 	if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
-		$label = htmlspecialchars ($task['mode'], ENT_QUOTES, 'UTF-8');
+		$label = htmlspecialchars (getTasksMode ($task['mode']), ENT_QUOTES, 'UTF-8');
 		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'mode', 'mode', $label, $label);
 	}
 

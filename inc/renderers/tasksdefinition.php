@@ -161,7 +161,7 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), $definition['enabled']);
 	renderTasksEditField ($isViewTab, $isVertical, '', 'enabled', $label, $input);
 
-	$label = $definition['mode'];
+	$label = getTasksMode ($definition['mode']);
 	$input = getSelect (getTasksModes(), array ('name' => 'mode'), $definition['mode']);
 	renderTasksEditField ($isViewTab, $isVertical, '', 'mode', $label, $input);
 

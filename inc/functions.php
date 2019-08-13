@@ -99,7 +99,16 @@ function getTasksNextDue($freq, $date = null, $throw = true) {
 }
 
 function getTasksModes() {
-	return array('due' => 'next due', 'schedule' => 'scheduled');
+	return array(
+		'due'      => getConfigVar('TASKS_TEXT_DUE'),
+		'schedule' => getConfigVar('TASKS_TEXT_SCHEDULE'),
+		'complete' => getConfigVar('TASKS_TEXT_COMPLETE')
+	);
+}
+
+function getTasksMode ($mode) {
+	$modes = getTasksModes();
+	return !isset($modes[$mode]) ? $mode : $modes[$mode];
 }
 
 function getTasksDiffString($interval) {

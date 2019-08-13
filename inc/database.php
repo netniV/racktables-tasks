@@ -182,19 +182,45 @@ function ensureTasksDefinitionNextDue ($id) {
 	}
 
 	recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): Enabled: ' . $definition['enabled'] . ', Mode: ' . $definition['mode']);
-	if ($definition && $definition['enabled'] == 'yes' && $definition['mode'] == 'due') {
-		$last_select = usePreparedSelectBlade ("SELECT id, completed, created_time FROM TasksItem WHERE definition_id = ? ORDER BY created_time DESC, id DESC LIMIT 1", array($id));
+	if ($definition && $definition['enabled'] == 'yes' && $definition['mode'] != 'schedule') {
+		$last_select = usePreparedSelectBlade ("SELECT id, completed, created_time, completed_time FROM TasksItem WHERE definition_id = ? ORDER BY created_time DESC, id DESC LIMIT 1", array($id));
 		$last = $last_select->fetch (PDO::FETCH_ASSOC);
 
 		recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): last: ' . var_export($last, true));
 		if (!isset($last['completed']) || $last['completed'] == 'yes') {
-			$base = $definition['start_time'] ? $definition['start_time'] : $definition['created_time'];
-			if (isset($last['created_time'])) {
+			$mode = 'unknown';
+			$base = null;
+			$freq = null;
+
+			if ($definition['mode'] == 'complete') {
+				$mode = 'complete';
+				$freq = $definition['frequency_format'];
+				if (isset($last['completed'])) {
+					$mode = 'completed_time';
+					$base = $last['completed_time'];
+				}
+			} elseif ($last['created_time']) {
+				$mode = 'created_time';
 				$base = $last['created_time'];
-				$next = getTasksNextDue($definition['frequency_format'], new DateTime($base));
-			} else {
-				$next = new DateTime($base);
+				$freq = $definition['frequency_format'];
 			}
+
+			if ($base == null) {
+				if (isset($definition['start_time'])) {
+					$mode = 'created_def';
+					$base = $definition['start_time'];
+					$freq = $definition['frequency_format'];
+				} elseif (isset($definition['created_time'])) {
+					$mode = 'created_last';
+					$base = $definition['created_time'];
+					$freq = $definition['frequency_format'];
+				}
+			}
+
+			$next = getTasksNextDue($freq, new DateTime($base));
+			recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): ' . $mode . ': ' .
+				$next->format('Y-m-d H:i:s') . ' = getTasksNextDue(' . $freq . ', new DateTime(' .
+				$base . '));');
 
 			/*
 			echo "PT: " . $definition['processed_time'] . "\n";
@@ -334,7 +360,7 @@ function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 			recordObjectHistory($row['object_id']);
 		}
 
-		if ($row['mode'] == 'due') {
+		if ($row['mode'] != 'schedule') {
 			ensureTasksDefinitionNextDue($row['definition_id']);
 		}
 
