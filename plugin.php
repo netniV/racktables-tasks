@@ -71,6 +71,7 @@ function plugin_tasks_vars ()
 				array('name' => 'TASKS_DATE_ONLY', 'type' => 'string', 'default' => 'false', 'desc' => 'Show dates (no time) when not vertiical'),
 			),
 			'1.2' => array(
+				array('name' => 'TASKS_HIDE_ID',       'type' => 'string', 'default' => 'false', 'desc' => 'Hide ID column when displaying tasks'),
 				array('name' => 'TASKS_TEXT_DUE',      'type' => 'string', 'default' => 'next due',      'desc' => 'Text for Frequency tyoe'),
 				array('name' => 'TASKS_TEXT_SCHEDULE', 'type' => 'string', 'default' => 'scheduled',     'desc' => 'Text for Schedule type'),
 				array('name' => 'TASKS_TEXT_COMPLETE', 'type' => 'string', 'default' => 'on completion', 'desc' => 'Text for Completion type'),
@@ -336,7 +337,7 @@ function plugin_tasks_decodeTitle($no) {
 	global $page, $tab;
 
 	$title = array();
-	if ($no == 'tasks:definitionstab') {
+	if ($no == 'tasks:definitionstab' || $no == 'tasks:frequenciestab') {
 		$title = array(
 			'name' => 'Tasks',
 			'params' => array(
@@ -351,9 +352,11 @@ function plugin_tasks_decodeTitle($no) {
 		$obj = false;
 		$object_id =0;
 		if (isset($_REQUEST['object_id'])) {
+			$mode = 'object_id';
 			$object_id = $_REQUEST['object_id'];
 			$obj = spotEntity('object', $object_id);
 		} elseif (isset($_REQUEST['task_item_id'])) {
+			$mode = 'task_item_id';
 			$obj = getTasksItems (0, NULL, $_REQUEST['task_item_id']);
 			if ($obj) {
 				$obj = reset($obj);
@@ -361,6 +364,7 @@ function plugin_tasks_decodeTitle($no) {
 				$object_id = $obj['object_id'];
 			}
 		} elseif (isset($_REQUEST['task_definition_id'])) {
+			$mode = 'task_definition_id';
 			$obj = getTasksDefinitions ($_REQUEST['task_definition_id']);
 			if ($obj) {
 				$obj = reset($obj);
@@ -369,25 +373,78 @@ function plugin_tasks_decodeTitle($no) {
 			}
 		}
 
+		recordTasksDebug('**OBJ** ' . json_encode(var_export($obj,true)));
 		if ($obj) {
+			if (empty($obj['dname'])) {
+				$obj['dname'] = 'Object ' . $object_id;
+			}
+
 			$title = array(
 				'name'   => $obj['dname'],
+				'mode'   => $mode,
 				'params' => array(
 					'page' => 'object',
 					'object_id' => $object_id
 				)
 			);
 		}
+	} elseif ($no == 'tasksfrequency') {
+		recordTasksDebug ('REQUEST: ' . json_encode(var_export($_REQUEST, true)));
+		$mode = 'tasksfrequency_id';
+		$obj = getTasksFrequencies ($_REQUEST['task_frequency_id']);
+		if ($obj) {
+			$obj = reset($obj);
+			$title = array(
+				'name'   => $obj['name'],
+				'mode'   => $mode,
+				'params' => array(
+					'page' => 'tasksfrequency',
+					'task_frequency_id' => $obj['id'],
+				)
+			);
+		}
+	} elseif ($no == 'tasksdefinition') {
+		recordTasksDebug ('REQUEST: ' . json_encode(var_export($_REQUEST, true)));
+		$mode = 'tasksdefinition_id';
+		$obj = getTasksDefinitions ($_REQUEST['task_definition_id']);
+		if ($obj) {
+			$obj = reset($obj);
+			$title = array(
+				'name'   => $obj['name'],
+				'mode'   => $mode,
+				'params' => array(
+					'page' => 'tasksdefinition',
+					'task_definition_id' => $obj['id'],
+				)
+			);
+		}
+	} elseif ($no == 'tasksitem') {
+		recordTasksDebug ('REQUEST: ' . json_encode(var_export($_REQUEST, true)));
+		$mode = 'tasksitem_id';
+		$obj = getTasksItems (0, NULL, $_REQUEST['task_item_id']);
+		if ($obj) {
+			$obj = reset($obj);
+			$title = array(
+				'name'   => $obj['name'],
+				'mode'   => $mode,
+				'params' => array(
+					'page' => 'tasksitem',
+					'task_item_id' => $obj['id'],
+				)
+			);
+		} else {
+			recordTasksDebug('Failed to obtain tasksitem for ' . $_REQUEST['task_item_id']);
+		}
 	}
 
 	if (!empty($title)) {
 		stopHookPropagation ();
-//		recordTasksDebug('decodeTitle("' . $no . '"): returned ' . json_encode($title));
+		recordTasksDebug('decodeTitle("' . $no . '"): returned ' . json_encode($title));
 		return $title;
 	}
 
-	if (!in_array($no, array('object','ipv4space'))) {
-//		recordTasksDebug('decodeTitle("' . $no . '"): unhandled');
+	if (!in_array($no, array('object','ipv4space','ipv6space'))) {
+		recordTasksDebug('decodeTitle("' . $no . '"): unhandled');
 	}
 	return $no;
 }

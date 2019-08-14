@@ -6,9 +6,12 @@ function initTasksNavigationTasksItem() {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger, $tabhandlers_stack;
 
 	/* TasksItem */
-	$page   ['tasksitem']['title']       = 'Task Item';
+//	$page   ['tasksitem']['title']       = 'Task Item';
+	$page   ['tasksitem']['parent']      = 'object';
 	$page   ['tasksitem']['bypass']      = 'task_item_id';
 	$page   ['tasksitem']['bypass_type'] = 'uint';
+	$page	['tasksitem']['bypass_tabs'] = array('default', 'edit');
+
 	$tab    ['tasksitem']['default'] = 'View';
 	$tab    ['tasksitem']['edit']    = 'Properties';
 

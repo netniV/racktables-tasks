@@ -23,8 +23,13 @@ function renderTasksDefinitions ()
 		echo '<tr>' .
 			'<td>' . getImageHREF ('create', 'add a new definition', TRUE) . '</td>' .
 			'<td><input type=text size=24 name=name></td>' .
-			'<td><input type=text size=48 name=description></td>' .
-			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), 'yes') . '</td>' .
+			'<td><input type=text size=48 name=description></td>';
+
+		if (getConfigVar('TASKS_HIDE_ID') != 'yes') {
+			echo '<td>-</td>';
+		}
+
+		echo	'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), 'yes') . '</td>' .
 			'<td>' . getSelect (getTasksModes(), array ('name' => 'type'), 'due') . '</td>' .
 			'<td><input type=text size=24 name=start_time class="tasks-datetime"></td>' .
 			'<td>' . getSelect (getTasksFrequencyEntities(), array('name' => 'frequency_id'), 0, FALSE) . '</td>' .
@@ -40,8 +45,13 @@ function renderTasksDefinitions ()
 	echo '<thead><tr>' .
 		'<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>' .
 		'<th>task</th>' .
-		'<th>definition</th>' .
-		'<th>enabled</th>' .
+		'<th>definition</th>';
+
+	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
+		echo '<th>id</th>';
+	}
+
+	echo	'<th>enabled</th>' .
 		'<th>type</th>' .
 		'<th>start_time</th>' .
 		'<th>frequency</th>' .
@@ -150,6 +160,11 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	$label = htmlspecialchars ($definition['description'], ENT_QUOTES, 'UTF-8');
 	$input = '<input type=text size=48 name=description value="' . $definition['description'] . '">';
 	renderTasksEditField ($isViewTab, $isVertical, '', 'definition', $label, $input);
+
+	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
+		$label = $tasks_definition_id;
+		renderTasksEditField ($isViewTab, $isVertical, '', 'id', $label, $label);
+	}
 
 	if ($isVertical) {
 		$label = str_replace("\n",'<br/>', htmlspecialchars($definition['details'], ENT_QUOTES, 'UTF-8'));

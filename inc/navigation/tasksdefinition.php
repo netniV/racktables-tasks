@@ -13,7 +13,6 @@ function initTasksNavigationTasksDefinition() {
 	/* Tasks Definitions in tasks */
 	$page['tasksdefinitions']['title']       = 'Task Definitions';
 	$page['tasksdefinitions']['parent']      = 'tasks:definitionstab';
-
 	$tab ['tasksdefinitions']['default']     = 'Browse';
 	$tab ['tasksdefinitions']['add']         = 'Add more';
 
@@ -21,7 +20,7 @@ function initTasksNavigationTasksDefinition() {
 	registerTabHandler ('tasksdefinitions', 'add',         'renderTasksDefinitions');
 
 	/* Tasks Definition in Tasks Definitions */
-	$page['tasksdefinition']['title']       = 'Task Definition';
+//	$page['tasksdefinition']['title']       = 'Task Definition';
 	$page['tasksdefinition']['parent']      = 'tasksdefinitions';
 	$page['tasksdefinition']['bypass']      = 'task_definition_id';
 	$page['tasksdefinition']['bypass_type'] = 'uint';

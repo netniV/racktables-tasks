@@ -193,7 +193,7 @@ function getTasksFrequencyFormatSuggestionList() {
 function isTasksDebugUser() {
 	global $remote_username;
 
-	return $remote_username == 'admin';
+//	return $remote_username == 'admin';
 	return false; // ($remote_username == 'netniv' ||	$remote_username == 'admin');
 }
 

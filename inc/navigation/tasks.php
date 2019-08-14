@@ -6,9 +6,9 @@ function initTasksNavigationTasks() {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 
 	/* Tasks Top Tab */
-	$page['tasks']['title']       = 'Tasks';
-	$page['tasks']['default']     = 'default';
-	$page['tasks']['parent']      = 'index';
+	$page['tasks']['title']        = 'Tasks';
+	$page['tasks']['default']      = 'default';
+	$page['tasks']['parent']       = 'index';
 
 	$tab ['tasks']['default']     = 'Outstanding';
 	$tab ['tasks']['history']     = 'History';

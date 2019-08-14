@@ -6,12 +6,13 @@ function initTasksNavigationTasksFrequency () {
 	global $interface_requires, $opspec_list, $page, $tab, $trigger;
 
 	$tab ['tasks']['frequencies'] = 'Frequencies';
+
 	registerTabHandler ('tasks', 'frequencies', 'renderTasksFrequencies');
 	registerOpHandler  ('tasks', 'frequencies', 'add', 'addTasksFrequency');
 
 	/* Tasks Frequenies */
 	$page['tasksfrequencies']['title']  = 'Task Frequenies';
-	$page['tasksfrequencies']['parent'] = 'tasks:frequencies';
+	$page['tasksfrequencies']['parent'] = 'tasks:frequenciestab';
 
 	$tab['tasksfrequencies']['default'] = 'Browse';
 	//$tab['tasksfrequencies']['add']     = 'Add more';
@@ -24,10 +25,11 @@ function initTasksNavigationTasksFrequency () {
 	$interface_requires['tasksfrequencies-*'] = 'interface-config.php';
 
 	/* Tasks Frequency */
-	$page['tasksfrequency']['title']       = 'Task Frequency';
+//	$page['tasksfrequency']['title']       = 'Task Frequency';
 	$page['tasksfrequency']['parent']      = 'tasksfrequencies';
-	$page['tasksfrequency']['bypass']      = 'task_freqeuency_id';
+	$page['tasksfrequency']['bypass']      = 'task_frequency_id';
 	$page['tasksfrequency']['bypass_type'] = 'uint';
+	$page['tasksfrequency']['bypass_tabs'] = array('default', 'edit');
 
 	$tab['tasksfrequency']['default'] = 'View';
 	$tab['tasksfrequency']['edit']    = 'Properties';

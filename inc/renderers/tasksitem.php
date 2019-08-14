@@ -86,6 +86,10 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 			echo '<th>object</th>';
 		}
 
+		if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
+			echo '<th>id</th>';
+		}
+
 		if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
 			echo '<th>type</th>';
 		}
@@ -267,6 +271,11 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if ($isVertical && $isViewTab) {
 		$label = str_replace("\n",'<br/>', htmlspecialchars ($task['details'], ENT_QUOTES, 'UTF-8'));
 		renderTasksEditField ($isViewTab, $isVertical, '', 'details', $label, $label);
+	}
+
+	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
+		$label = $task_item_id;
+		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'id', 'id', $label, $label);
 	}
 
 	if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
