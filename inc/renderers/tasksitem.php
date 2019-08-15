@@ -80,14 +80,14 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=' . $tableName . ' name=' . $tableName . '>';
 		echo '<thead><tr><th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 
+		if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
+			echo '<th>id</th>';
+		}
+
 		echo '<th>task</th>';
 		echo '<th>definition</th>';
 		if ($isTasksPage) {
 			echo '<th>object</th>';
-		}
-
-		if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
-			echo '<th>id</th>';
 		}
 
 		if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
@@ -246,6 +246,12 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	}
 
 	$prefix = 'task_' . $task['id'] . '_';
+
+	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
+		$label = $task_item_id;
+		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'id', 'id', $label, $label);
+	}
+
 	$label = mkA (stringForTD ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
 	$input = stringForTD ($task['name']);
 	renderTasksEditField ($isViewTab || !$isVertical, $isVertical, $prefix . 'name', 'task', $label, $input);
@@ -271,11 +277,6 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if ($isVertical && $isViewTab) {
 		$label = str_replace("\n",'<br/>', htmlspecialchars ($task['details'], ENT_QUOTES, 'UTF-8'));
 		renderTasksEditField ($isViewTab, $isVertical, '', 'details', $label, $label);
-	}
-
-	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
-		$label = $task_item_id;
-		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'id', 'id', $label, $label);
 	}
 
 	if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {

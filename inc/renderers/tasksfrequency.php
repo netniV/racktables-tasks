@@ -19,14 +19,14 @@ function renderTasksFrequencies ($object_id)
 		echo '<tbody class="newrow">';
 		printOpFormIntro ('add');
 		echo '<tr>' .
-			'<td>' . getImageHREF ('create', 'add a new frequency', TRUE) . '</td>' .
-			'<td><input type=text size=24 name=name></td>';
+			'<td>' . getImageHREF ('create', 'add a new frequency', TRUE) . '</td>';
 
 		if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
-			echo '<td>-</td>';
+			echo '<td>&nbsp;</td>';
 		}
 
-		echo	'<td><input type=text size=48 name=format></td>' .
+		echo	'<td><input type=text size=24 name=name></td>' .
+			'<td><input type=text size=48 name=format></td>' .
 			'<td>&nbsp;</td>' .
 			'<td>' . getImageHREF ('create', 'add a new frequency', TRUE) . '</td>' .
 			'</tr></form></tbody>';
@@ -40,13 +40,12 @@ function renderTasksFrequencies ($object_id)
 		. 'class="tablesorter widetable" name=tasksfrequencytable id=tasksfrequencytable>';
 	echo '<thead><tr><th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 
-	echo '<th>name</th>';
-
 	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
 		echo '<td>id</td>';
 	}
 
-	echo	'<th>format</th>' .
+	echo '<th>name</th>' .
+		'<th>format</th>' .
 		'<th>next due time</th>' .
 		'<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>' .
 		'</tr></thead>';
@@ -121,14 +120,14 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 
 	$now = new DateTime();
 
-	$label = mkA (stringForTD ($task['name']), 'tasksfrequency', $task['id'], $isVertical?'edit':NULL);
-	$input = "<input size=24 name=name value='" . htmlspecialchars($task['name']) . "'>";
-	renderTasksEditField ($isViewTab, $isVertical, '', 'name', $label, $input);
-
 	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
 		$label = $task_frequency_id;
 		renderTasksEditField ($isViewTab, $isVertical, '', 'id', $label, $label);
 	}
+
+	$label = mkA (stringForTD ($task['name']), 'tasksfrequency', $task['id'], $isVertical?'edit':NULL);
+	$input = "<input size=24 name=name value='" . htmlspecialchars($task['name']) . "'>";
+	renderTasksEditField ($isViewTab, $isVertical, '', 'name', $label, $input);
 
 	$label = $task['format'];
 	$input = "<textarea cols=48 rows=4 name=format>" . htmlspecialchars($task['format']) . "</textarea>";
