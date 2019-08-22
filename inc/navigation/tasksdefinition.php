@@ -52,7 +52,8 @@ function addTasksDefinition () {
 		assertTasksParam ('start_time', 'datetime'),
 		assertTasksParam ('type', 'enum/mode'),
 		assertTasksParam ('object_id', 'uint0'),
-		assertTasksParam ('details', 'string0')
+		assertTasksParam ('details', 'string0'),
+		assertTasksParam ('repeat','enum/yesno')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
@@ -69,7 +70,8 @@ function updTasksDefinition () {
 		assertTasksParam ('frequency_id', 'uint0'),
 		assertTasksParam ('mode', 'enum/mode'),
 		assertTasksParam ('object_id', 'uint0'),
-		assertTasksParam ('details', 'string0')
+		assertTasksParam ('details', 'string0'),
+		assertTasksParam ('repeat','enum/yesno')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }

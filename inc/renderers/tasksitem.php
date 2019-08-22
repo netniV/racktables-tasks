@@ -247,8 +247,9 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	$prefix = 'task_' . $task['id'] . '_';
 
+	$label = "<input type='hidden' name='id' value='{$task['id']}'>";
 	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
-		$label = $task_item_id;
+		$label = $task_item_id . $label;
 		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'id', 'id', $label, $label);
 	}
 

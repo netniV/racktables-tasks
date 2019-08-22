@@ -63,36 +63,38 @@ function getTasksNextDue($freq, $date = null, $throw = true) {
 	$date_orig = $date != null ? $date : new DateTime();
 	$date_freq = clone($date_orig);
 
-	try {
-		$freqs = parseTasksFrequency($freq);
-		if (!empty($freqs['data'])) {
-			$items = explode(';', $freqs['data']);
-			foreach ($items as $item) {
-				if ($item[0] == 'P') {
-					$interval = new DateInterval($item);
-					$date_freq = $date_freq->add($interval);
-				} else {
-					$date_freq = $date_freq->modify($item);
+	if (!empty($frew)) {
+		try {
+			$freqs = parseTasksFrequency($freq);
+			if (!empty($freqs['data'])) {
+				$items = explode(';', $freqs['data']);
+				foreach ($items as $item) {
+					if ($item[0] == 'P') {
+						$interval = new DateInterval($item);
+						$date_freq = $date_freq->add($interval);
+					} else {
+						$date_freq = $date_freq->modify($item);
+					}
 				}
 			}
-		}
-	} catch (Exception $e) {
-		if (!$throw) {
-			return $e->getMessage();
-		}
-	}
-
-	if ($date_orig->getTimestamp() == $date_freq->getTimestamp()) {
-		if ($throw) {
-			$message = 'unable to get next due date';
-			foreach ($lines = debug_backtrace() as $line) {
-				$message .= ', ' . basename($line['file']) . '[' . $line['line'] . ']: ' .
-					(isset($line['class']) ? ($line['class'] . '::') : '') . $line['function'] .'()';
+		} catch (Exception $e) {
+			if (!$throw) {
+				return $e->getMessage();
 			}
+		}
 
-			throw new RTDatabaseError($message);
-		} else {
-			return $date_orig->getTimestamp() . ': ' . $freq;
+		if ($date_orig->getTimestamp() == $date_freq->getTimestamp()) {
+			if ($throw) {
+				$message = 'unable to get next due date';
+				foreach ($lines = debug_backtrace() as $line) {
+					$message .= ', ' . basename($line['file']) . '[' . $line['line'] . ']: ' .
+						(isset($line['class']) ? ($line['class'] . '::') : '') . $line['function'] .'()';
+				}
+
+				throw new RTDatabaseError($message);
+			} else {
+				return $date_orig->getTimestamp() . ': ' . $freq;
+			}
 		}
 	}
 	return $throw ? $date_freq : $date_freq->format('Y-m-d H:i:s');

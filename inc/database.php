@@ -99,7 +99,7 @@ function getTasksDefinitions ($definition_id = 0)
 
 	$result = usePreparedSelectBlade
 	(
-		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`details`, TD.`enabled`, ' .
+		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`details`, TD.`enabled`, TD.`repeat`, ' .
 		'TD.`mode`, TD.`processed_time`, TD.`created_time`,TD.`start_time`, ' .
 		'TD.`object_id`, O.`name` AS `object_name`, COUNT(TI.`id`) AS num_items, ' .
 		'TF.`name` AS frequency_name, TF.`id` AS frequency_id, TF.`format` AS frequency_format ' .
@@ -114,7 +114,7 @@ function getTasksDefinitions ($definition_id = 0)
 	return reindexById ($result->fetchAll (PDO::FETCH_ASSOC));
 }
 
-function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $start_time, $mode, $object_id, $details) {
+function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $start_time, $mode, $object_id, $details, $repeat) {
 	$fields = array(
 		'name' => $name,
 		'description' => $description,
@@ -124,6 +124,7 @@ function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $s
 		'start_time' => $start_time,
 		'mode' => $mode,
 		'object_id' => $object_id,
+		'repeat' => $repeat,
 	);
 
 	if (usePreparedInsertBlade ('TasksDefinition',$fields)) {
@@ -133,7 +134,7 @@ function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $s
 	return $id;
 }
 
-function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_id, $mode, $object_id, $details) {
+function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_id, $mode, $object_id, $details, $repeat) {
 	$fields = array(
 		'id' => $id,
 		'name' => $name,
@@ -143,6 +144,7 @@ function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_i
 		'mode' => $mode,
 		'frequency_id' => $frequency_id,
 		'object_id' => $object_id,
+		'repeat' => $repeat,
 	);
 
 	usePreparedUpdateBlade
@@ -181,8 +183,11 @@ function ensureTasksDefinitionNextDue ($id) {
 		$definition = array('enabled' => 'missing', 'mode' => 'missing');
 	}
 
-	recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): Enabled: ' . $definition['enabled'] . ', Mode: ' . $definition['mode']);
-	if ($definition && $definition['enabled'] == 'yes' && $definition['mode'] != 'schedule') {
+	recordTasksDebug('ensureTasksDefinitionNextDue(' . $id . '): Enabled: ' . $definition['enabled'] . ', Mode: ' . $definition['mode'] . ', Repeat: ' . $definition['repeat']);
+	if ($definition &&
+		$definition['enabled'] == 'yes' &&
+		$definition['repeat'] == 'yes' &&
+		$definition['mode'] != 'schedule') {
 		$last_select = usePreparedSelectBlade ("SELECT id, completed, created_time, completed_time FROM TasksItem WHERE definition_id = ? ORDER BY created_time DESC, id DESC LIMIT 1", array($id));
 		$last = $last_select->fetch (PDO::FETCH_ASSOC);
 

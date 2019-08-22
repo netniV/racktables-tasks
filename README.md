@@ -11,12 +11,12 @@ Install this plugin in the normal method for RackTables plugins.
 
 ## Definitions
 
-Task Definitions rely on the defined Task Frequencies, so you need to make sure 
+Task Definitions rely on the defined Task Frequencies, so you need to make sure
 that you have the frequency you want already configured. To create a Task
-Definition, you can must use the top `Tasks` link, then click on the 
-`Definitions` tab.  
+Definition, you can must use the top `Tasks` link, then click on the
+`Definitions` tab.
 
-Once a definition has tasks associated to it, you can not delete it but you can 
+Once a definition has tasks associated to it, you can not delete it but you can
 disable it.
 
 Task Definition's can have three modes of operation:
@@ -30,18 +30,18 @@ Task Definition's can have three modes of operation:
 When a Task Definition is disabled, any outstanding tasks are automatically
 closed by the system and the note is replaced with a comment to that effect.
 
+When a definition has `repeat` set to no, no new task will be created upon
+completion.
+
 ## Next Due
 
 When using the Next Due mode, no additional program is needed only the name,
 start\_time and frequency are required.  When a TasksDefinition is enabled, any
 time the definition is updated or the outstanding TasksItem is completed, a new
-task is created.
+task is created only if the definition's `repeat` is set to 'yes' (default).
 
 The new Task Item's created\_time will be set to either the start\_time or the
 previous Task Item's created\_time incremented by the frequency.
-
-If the completing Task Item's definition is disabled, no new TasksItem is
-created.
 
 ## On Complete
 
@@ -73,11 +73,11 @@ created.
 
 ## Frequency
 
-Task Frequencies are a very flexible and powerful tool in the arsenal.  Each 
-frequency requires just a name and the format (frequency).  The name is 
+Task Frequencies are a very flexible and powerful tool in the arsenal.  Each
+frequency requires just a name and the format (frequency).  The name is
 displayed in the drop down selections available when defining a definition.
 
-By default, when a browser supports it, there will be a list of predefined 
+By default, when a browser supports it, there will be a list of predefined
 entries that can be selected when entering a format.
 
 The format must be entered in one of the following styles:
@@ -92,10 +92,10 @@ The format must be entered in one of the following styles:
   An interval format is the PHP term for specifying date/time intervals for more
   information on them, please see [PHP's interval\_spec](http://php.net/manual/en/dateinterval.construct.php)
 
-You can utilise multiple formats in one frequency by separating them with a semi 
-colon (;).  Each format will be applied to the one before it in a cascading 
-effect.  When using multiple formats, you can switch between `Relative` and 
-`Interval` formats, but it is not advised to mix these as it will be easier to 
+You can utilise multiple formats in one frequency by separating them with a semi
+colon (;).  Each format will be applied to the one before it in a cascading
+effect.  When using multiple formats, you can switch between `Relative` and
+`Interval` formats, but it is not advised to mix these as it will be easier to
 read using just multiple relative formats.
 
 ## Examples

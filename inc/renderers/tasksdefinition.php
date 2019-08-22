@@ -30,6 +30,7 @@ function renderTasksDefinitions ()
 		echo	'<td><input type=text size=24 name=name></td>' .
 			'<td><input type=text size=48 name=description></td>' .
 			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), 'yes') . '</td>' .
+			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'repeat'), 'yes') . '</td>' .
 			'<td>' . getSelect (getTasksModes(), array ('name' => 'type'), 'due') . '</td>' .
 			'<td><input type=text size=24 name=start_time class="tasks-datetime"></td>' .
 			'<td>' . getSelect (getTasksFrequencyEntities(), array('name' => 'frequency_id'), 0, FALSE) . '</td>' .
@@ -52,6 +53,7 @@ function renderTasksDefinitions ()
 	echo	'<th>task</th>' .
 		'<th>definition</th>' .
 		'<th>enabled</th>' .
+		'<th>repeat</th>' .
 		'<th>type</th>' .
 		'<th>start_time</th>' .
 		'<th>frequency</th>' .
@@ -175,6 +177,10 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	$label = $definition['enabled'];
 	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), $definition['enabled']);
 	renderTasksEditField ($isViewTab, $isVertical, '', 'enabled', $label, $input);
+
+	$label = $definition['repeat'];
+	$input = getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'repeat'), $definition['repeat']);
+	renderTasksEditField ($isViewTab, $isVertical, '', 'repeat', $label, $input);
 
 	$label = getTasksMode ($definition['mode']);
 	$input = getSelect (getTasksModes(), array ('name' => 'mode'), $definition['mode']);

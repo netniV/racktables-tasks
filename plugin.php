@@ -13,7 +13,7 @@ function plugin_tasks_info ()
 	(
 		'name' => 'tasks',
 		'longname' => 'Tasks',
-		'version' => '1.2',
+		'version' => '1.3',
 		'home_url' => 'http://www.github.com/netniv/racktables-tasks/'
 	);
 }
@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `start_time` timestamp NULL,
  `processed_time` timestamp NULL,
  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `repeat` enum('yes','no') NOT NULL DEFAULT 'yes',
  PRIMARY KEY (`id`),
  KEY `object_id` (`object_id`),
  KEY `frequency_id` (`frequency_id`),
@@ -244,6 +245,7 @@ function plugin_tasks_upgrade ()
 		'1.0',
 		'1.1',
 		'1.2',
+		'1.3',
 	);
 
 	$skip = TRUE;
@@ -274,16 +276,23 @@ function plugin_tasks_upgrade ()
 	{
 		switch ($v)
 		{
+			case '1.0':
+				break;
+
+			case '1.1':
+				break;
+
 			case '1.2':
 				$queries[] = "ALTER TABLE `TasksItem` MODIFY `mode` enum('due', 'schedule', 'complete') NOT NULL DEFAULT 'due'";
 				$queries[] = "ALTER TABLE `TasksDefinition` MODIFY `mode` enum('due', 'schedule', 'complete') NOT NULL DEFAULT 'due'";
 				$queries[] = "ALTER TABLE `TasksFrequency` ADD  CONSTRAINT uk_name UNIQUE (`name`);";
+				break;
 
+			case '1.3':
+				$queries[] = "ALTER TABLE `TasksDefinition` ADD  `repeat` enum('yes','no') NOT NULL DEFAULT 'yes'";
 				plugin_tasks_vars_add ();
 				break;
-			case '1.1':
-				plugin_tasks_vars_add ();
-				break;
+
 			default:
 				throw new RackTablesError("Preparing to upgrade to $v failed", RackTablesError::INTERNAL);
 		}
