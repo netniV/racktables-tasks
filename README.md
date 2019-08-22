@@ -11,7 +11,7 @@ Install this plugin in the normal method for RackTables plugins.
 
 ## Definitions
 
-Task Definitions rely on predefined Task Frequencies, so you need to make sure 
+Task Definitions rely on the defined Task Frequencies, so you need to make sure 
 that you have the frequency you want already configured. To create a Task
 Definition, you can must use the top `Tasks` link, then click on the 
 `Definitions` tab.  
@@ -19,9 +19,11 @@ Definition, you can must use the top `Tasks` link, then click on the
 Once a definition has tasks associated to it, you can not delete it but you can 
 disable it.
 
-Task Definition's can have two modes of operation:
+Task Definition's can have three modes of operation:
 
 - Next Due
+
+- On Complete
 
 - Scheduled
 
@@ -40,6 +42,16 @@ previous Task Item's created\_time incremented by the frequency.
 
 If the completing Task Item's definition is disabled, no new TasksItem is
 created.
+
+## On Complete
+
+When using the On Complete mode, it operates almost identically to the Next Due
+mode.  The only exception is the use of the completed\_time instead of
+created\_time.
+
+The new Task Item's created\_time will be set to either the start\_time or the
+previous Task Item's completed\_time incremented by the frequency.
+
 
 ## Scheduled mode
 

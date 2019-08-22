@@ -25,9 +25,15 @@ function tasks_exception_error_handler($errno, $errstr, $errfile, $errline ) {
 		error_log($message);
 		$basedir = realpath(__DIR__ . '/../../');
 		foreach ($backtrace as $trace) {
-			$file = str_replace($basedir, '', $trace['file']);
+			if (isset($trace['file'])) {
+				$file = str_replace($basedir, '', $trace['file']);
+			} else {
+				$file = 'unknown';
+			}
+
 			$func = (isset($trace['class']) ? ($trace['class'] . '::') : '') . $trace['function'];
-			error_log("{$file}[{$trace['line']}] $func");
+			$line = (isset($trace['line']) ? $trace['line'] : '');
+			error_log("{$file}[{$line}] $func");
 		}
 
 		if (!empty(trim(file_get_contents(__DIR__ . '/.debug')))) {
