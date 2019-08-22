@@ -100,11 +100,11 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 	$isViewTab = empty($_REQUEST['tab']) || in_array($_REQUEST['tab'], array('default', 'history', 'frequencies'));
 	$isAddTab  = !empty($_REQUEST['tab']) && $_REQUEST['tab'] == 'add';
 
-	$task      = getTasksFrequencies ($task_frequency_id);
+	$frequency = getTasksFrequencies ($task_frequency_id);
 
-	$task      = reset($task);
-	if (empty($task)) {
-		$task = array('id' => $task_item_id, 'name' => 'missing', 'format' => 'mising');
+	$frequency = reset($frequency);
+	if (empty($frequency)) {
+		$frequency = array('id' => $task_item_id, 'name' => 'missing', 'format' => 'mising');
 	}
 
 	if ($isVertical) {
@@ -115,7 +115,9 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 	}
 
 	if (!$isViewTab) {
-		printOpFormIntro ('upd', array ('task_frequency_id' => $task['id']));
+		printOpFormIntro ('upd', array ('task_frequency_id' => $frequency['id']));
+		echo "<input type='hidden' name='task_frequency_id' value='{$frequency['id']}'>";
+		echo "<input type='hidden' name='id' value='{$frequency['id']}'>";
 	}
 
 	$now = new DateTime();
@@ -125,22 +127,22 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 		renderTasksEditField ($isViewTab, $isVertical, '', 'id', $label, $label);
 	}
 
-	$label = mkA (stringForTD ($task['name']), 'tasksfrequency', $task['id'], $isVertical?'edit':NULL);
-	$input = "<input size=24 name=name value='" . htmlspecialchars($task['name']) . "'>";
+	$label = mkA (stringForTD ($frequency['name']), 'tasksfrequency', $frequency['id'], $isVertical?'edit':NULL);
+	$input = "<input size=24 name=name value='" . htmlspecialchars($frequency['name']) . "'>";
 	renderTasksEditField ($isViewTab, $isVertical, '', 'name', $label, $input);
 
-	$label = $task['format'];
-	$input = "<textarea cols=48 rows=4 name=format>" . htmlspecialchars($task['format']) . "</textarea>";
+	$label = $frequency['format'];
+	$input = "<textarea cols=48 rows=4 name=format>" . htmlspecialchars($frequency['format']) . "</textarea>";
 	renderTasksEditField ($isViewTab, $isVertical, '', 'format', $label, $input);
 
-	$label = getTasksNextDue($task['format'], $now, false);
+	$label = getTasksNextDue($frequency['format'], $now, false);
 	renderTasksEditField ($isViewTab, $isVertical, '', 'example due', $label, $label);
 
 	$isComplete = false;
 	$isEditable = !($isComplete || $isViewTab);
 
 	if (isTasksDebugUser()) {
-		echo $task['id'] . ' : ';
+		echo $frequency['id'] . ' : ';
 		echo $isComplete ? "COMPLETED" : "INCOMPLETE";
 		echo " ";
 		echo $isViewTab ? "VIEW" : "EDIT";
@@ -162,3 +164,4 @@ function renderTasksFrequency ($task_frequency_id = 0, $isVertical = true, $isTa
 		echo "</tr>";
 	}
 }
+

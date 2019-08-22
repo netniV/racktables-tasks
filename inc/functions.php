@@ -63,7 +63,7 @@ function getTasksNextDue($freq, $date = null, $throw = true) {
 	$date_orig = $date != null ? $date : new DateTime();
 	$date_freq = clone($date_orig);
 
-	if (!empty($frew)) {
+	if (!empty($freq)) {
 		try {
 			$freqs = parseTasksFrequency($freq);
 			if (!empty($freqs['data'])) {
