@@ -52,7 +52,7 @@ function renderTasksDefinitions ()
 
 	echo	'<th>task</th>' .
 		'<th>definition</th>' .
-		'<th>enabled</th>' .
+		'<th data-item="yes">enabled</th>' .
 		'<th>repeat</th>' .
 		'<th>type</th>' .
 		'<th>start_time</th>' .
