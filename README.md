@@ -5,6 +5,10 @@ installed in the normal way plugins are installed under RackTables.  Once
 enabled, it will create TasksItem and TasksDefinitions to handle the
 storage and creation of tasks.
 
+On completion of a task, if it is associated with an Object, this is updated
+with the details of the completed task and who it was completed by, providing
+a secured history of the task completion.
+
 ## Installation
 
 Install this plugin in the normal method for RackTables plugins.

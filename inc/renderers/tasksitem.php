@@ -333,7 +333,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 		renderTasksEditField ($isViewTab || $isHistoryTab, $isVertical, $prefix . 'notes', 'notes', $label, $isEditable ? $input : $label);
 	}
 
-	if ($isTasksPage && !$isComplete) {
+	if (!$isVertical && !$isComplete) {
 		$label = '<i id="task_complete_' . $task['id'] . '" class="far fa-circle"></i>'
 			. '<div id="' . $prefix . 'dialog" style="display:none"><table width="100%">'
 			. '<tr><td><b>Who:</b></td><td><input type=text name=completed_by value="' . $task['completed_by'] . '"></td>'

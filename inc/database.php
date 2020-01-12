@@ -328,7 +328,7 @@ function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 	$ret    = false;
 	$result = usePreparedSelectBlade ("
 		SELECT TI.`id`, TI.`object_id`, TI.`created_time`, TI.`completed`,
-		TI.`definition_id`, TD.`enabled`, TD.`mode`
+		TI.`definition_id`, TD.`enabled`, TD.`mode`, TI.`name`, TI.`description`
 		FROM TasksItem TI
 		INNER JOIN TasksDefinition TD ON TD.`id` = TI.`definition_id`
 		WHERE TI.`id` = ?", array($id));
@@ -370,6 +370,19 @@ function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 		}
 
 		if ($completed == 'yes') {
+			if ($row['object_id'] > 0) {
+				$log_content = $row['name'] . ' - ' . $row['description'] . ' was completed by ' . $remote_username . '.';
+				if (!empty($notes)) {
+					$log_content .= '  Notes: ' . $notes;
+				}
+
+				usePreparedExecuteBlade
+				(
+					'INSERT INTO ObjectLog SET object_id=?, user=?, date=NOW(), content=?',
+					array ($row['object_id'], $remote_username, $log_content)
+				);
+			}
+
 		        $_PAGE = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 		        $_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : '';
 
