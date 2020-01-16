@@ -130,7 +130,7 @@ function makeTableSortable(element, sort, usePager) {
 		if (paramResults!=null) {
 			paramTab = decodeURI(paramResults[1]) || 'default';
 		}
-
+		var paramOp = (paramPage == 'object' && paramTab == 'default') ? 'tic' : 'upd';
 		var paramUrl = 'page=' + paramPage + '&tab=' + paramTab;
 		var paramResults = new RegExp('[\?&]object_id=([^&#]*)').exec(window.location.href);
 		if (paramResults!=null) {
@@ -139,9 +139,10 @@ function makeTableSortable(element, sort, usePager) {
 				paramUrl = paramUrl + '&object_id='  + paramObjectId;
 			}
 		}
+		paramUrl = paramUrl + '&op=' + paramOp;
 
 		$('#tasksContainer').remove();
-		$('body').append('<div id="tasksContainer" style="display:none"><form method=post id=upd name=upd action="?module=redirect&' + paramUrl + '&op=upd"><input type=hidden name="id" value="' + taskId + '"><input type=hidden name="completed" value="yes"></form></div>');
+		$('body').append('<div id="tasksContainer" style="display:none"><form method=post id=upd name=upd action="?module=redirect&' + paramUrl + '"><input type=hidden name="id" value="' + taskId + '"><input type=hidden name="completed" value="yes"></form></div>');
 		$('#tasksContainer form').append(taskDialog.html());
 
 		var taskName = $("#tasksContainer input[name=completed_by]");

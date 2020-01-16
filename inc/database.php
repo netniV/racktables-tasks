@@ -386,8 +386,8 @@ function updateTasksItem ($id, $completed, $notes, $user = '', $time = '') {
 			$_PAGE = isset($_REQUEST['page']) ? $_REQUEST['page'] : 'default';
 			$_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : 'default';
 
-			if ($_PAGE == 'object' && $_TAB == 'tasksitem') {
-				$ret = buildRedirectUrl ('object', 'tasksitem', array('object_id' => $row['object_id']));
+			if ($_PAGE == 'object') {
+				$ret = buildRedirectUrl ('object', $_TAB, array('object_id' => $row['object_id']));
 			} else if ($_PAGE == 'tasks' && $_TAB == 'default') {
 				$ret = buildRedirectURL ('tasks', 'default');
 			} else {

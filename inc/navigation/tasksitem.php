@@ -27,6 +27,7 @@ function initTasksNavigationTasksItem() {
 	registerTabHandler ('object', 'tasksitem', 'renderTasksItems');
 
 	//registerOpHandler ('object', 'tasksitem', 'add', 'addTasksItem');
+	registerOpHandler ('object', 'default', 'tic', 'updTasksItem');
 	registerOpHandler ('object', 'tasksitem', 'upd', 'updTasksItem');
 	//registerOpHandler ('object', 'tasksitem', 'del', 'delTasksItem');
 
