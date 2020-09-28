@@ -230,6 +230,10 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 			} else {
 				$color = 'pastdue';
 			}
+		} else {
+			if ($diff->days <= 6) {
+				$color = 'due';
+			}
 		}
 	}
 

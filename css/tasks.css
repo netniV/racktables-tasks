@@ -1,26 +1,40 @@
 	.overdue, .late {
-		color: white;
+		//color: black;
 	}
 
 	.overdue a, .late a {
-		color: white;
+		//color: black;
+	}
+
+	.tablesorter-blue tbody tr.due.odd > td,
+	.tablesorter-blue tbody tr.pastdue.odd > td,
+	.tablesorter-blue tbody tr.overdue.odd > td,
+	.tablesorter-blue tbody tr.late.odd > td {
+		//opacity: 0.7;
+	}
+
+	.tablesorter-blue tbody tr.due.odd > td, 
+	.tablesorter-blue tbody tr.due.even > td {
+		background-color: rgba(217, 234, 211);
+		color: black;
 	}
 
 	.tablesorter-blue tbody tr.pastdue.even > td,
 	.tablesorter-blue tbody tr.pastdue.odd > td {
-		background-color: yellow;
+		background-color: rgb(255, 242, 204);
+		color: black;
 	}
 
 	.tablesorter-blue tbody tr.overdue.even > td,
 	.tablesorter-blue tbody tr.overdue.odd > td {
-		background-color: orange;
-		color: white;
+		background-color: rgb(252, 229, 205);
+		color: black;
 	}
 
 	.tablesorter-blue tbody tr.late.odd > td, 
 	.tablesorter-blue tbody tr.late.even > td {
-		background-color: maroon;
-		color: white;
+		background-color: rgba(244, 204, 204);
+		color: black;
 	}
 
 	.filtered {
