@@ -13,7 +13,7 @@ function plugin_tasks_info ()
 	(
 		'name' => 'tasks',
 		'longname' => 'Tasks',
-		'version' => '1.3',
+		'version' => '1.4',
 		'home_url' => 'http://www.github.com/netniv/racktables-tasks/'
 	);
 }
@@ -78,9 +78,12 @@ function plugin_tasks_vars ()
 			),
 			'1.2' => array(
 				array('name' => 'TASKS_HIDE_ID',       'type' => 'string', 'default' => 'false', 'desc' => 'Hide ID column when displaying tasks'),
-				array('name' => 'TASKS_TEXT_DUE',      'type' => 'string', 'default' => 'next due',      'desc' => 'Text for Frequency tyoe'),
+				array('name' => 'TASKS_TEXT_DUE',      'type' => 'string', 'default' => 'next due',      'desc' => 'Text for Frequency type'),
 				array('name' => 'TASKS_TEXT_SCHEDULE', 'type' => 'string', 'default' => 'scheduled',     'desc' => 'Text for Schedule type'),
 				array('name' => 'TASKS_TEXT_COMPLETE', 'type' => 'string', 'default' => 'on completion', 'desc' => 'Text for Completion type'),
+			),
+			'1.4' => array(
+				array('name' => 'TASKS_DEPARTMENTS',   'type' => 'string', 'default' => 'Sales,Support,Technology,Facilities,Compliance,Accounting', 'desc' => 'Comma separated departments'),
 			),
 		);
 	}
@@ -128,6 +131,7 @@ CREATE TABLE IF NOT EXISTS `TasksDefinition` (
  `processed_time` timestamp NULL,
  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  `repeat` enum('yes','no') NOT NULL DEFAULT 'yes',
+ `department` varchar(40) NOT NULL DEFAULT '',
  PRIMARY KEY (`id`),
  KEY `object_id` (`object_id`),
  KEY `frequency_id` (`frequency_id`),
@@ -148,6 +152,7 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
  `completed_time` timestamp NULL DEFAULT NULL,
  `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  `notes` TEXT DEFAULT NULL,
+ `department` varchar(255) DEFAULT NULL,
  PRIMARY KEY (`id`,`object_id`),
  KEY `object_id` (`object_id`),
  KEY `user_name` (`user_name`),
@@ -246,6 +251,7 @@ function plugin_tasks_upgrade ()
 		'1.1',
 		'1.2',
 		'1.3',
+		'1.4',
 	);
 
 	$skip = TRUE;
@@ -290,7 +296,11 @@ function plugin_tasks_upgrade ()
 
 			case '1.3':
 				$queries[] = "ALTER TABLE `TasksDefinition` ADD  `repeat` enum('yes','no') NOT NULL DEFAULT 'yes'";
-				plugin_tasks_vars_add ();
+				break;
+
+			case '1.4':
+				$queries[] = "ALTER TABLE `TasksDefinition` ADD `department` varchar(40) NOT NULL DEFAULT ''";
+				$queries[] = "ALTER TABLE `TasksItem` ADD `department` varchar(40) DEFAULT NULL";
 				break;
 
 			default:
@@ -298,6 +308,8 @@ function plugin_tasks_upgrade ()
 		}
 		$queries[] = "UPDATE Plugin SET version = '$v' WHERE name = 'tasks'";
 	}
+
+	plugin_tasks_vars_add ();
 
 	// execute the queries
 	global $dbxlink;

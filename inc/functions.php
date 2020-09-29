@@ -192,6 +192,18 @@ function getTasksFrequencyFormatSuggestionList() {
 	</datalist>";
 }
 
+function getTasksDepartmentsList () {
+	$departments = array_filter(array_map('trim',explode(',',getConfigVar('TASKS_DEPARTMENTS'))));
+	sort($departments);
+	$list = '<datalist id="departmentlist">';
+	foreach ($departments as $department) {
+		$list .= '<option value="' . htmlspecialchars ($department, ENT_QUOTES, 'UTF-8') . '">';
+	}
+	$list .= '</datalist>';
+	return $list;
+}
+
+
 function isTasksDebugUser() {
 	global $remote_username;
 

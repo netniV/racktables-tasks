@@ -99,7 +99,7 @@ function getTasksDefinitions ($definition_id = 0)
 
 	$result = usePreparedSelectBlade
 	(
-		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`details`, TD.`enabled`, TD.`repeat`, ' .
+		'SELECT TD.`id`, TD.`name`, TD.`description`, TD.`department`, TD.`details`, TD.`enabled`, TD.`repeat`, ' .
 		'TD.`mode`, TD.`processed_time`, TD.`created_time`,TD.`start_time`, ' .
 		'TD.`object_id`, O.`name` AS `object_name`, COUNT(TI.`id`) AS num_items, ' .
 		'TF.`name` AS frequency_name, TF.`id` AS frequency_id, TF.`format` AS frequency_format ' .
@@ -114,7 +114,7 @@ function getTasksDefinitions ($definition_id = 0)
 	return reindexById ($result->fetchAll (PDO::FETCH_ASSOC));
 }
 
-function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $start_time, $mode, $object_id, $details, $repeat) {
+function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $start_time, $mode, $object_id, $details, $repeat, $department) {
 	$fields = array(
 		'name' => $name,
 		'description' => $description,
@@ -125,6 +125,7 @@ function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $s
 		'mode' => $mode,
 		'object_id' => $object_id,
 		'repeat' => $repeat,
+		'department' => $department,
 	);
 
 	if (usePreparedInsertBlade ('TasksDefinition',$fields)) {
@@ -134,7 +135,7 @@ function insertTasksDefinition ($name, $description, $enabled, $frequency_id, $s
 	return $id;
 }
 
-function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_id, $mode, $object_id, $details, $repeat) {
+function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_id, $mode, $object_id, $details, $repeat, $department) {
 	$fields = array(
 		'id' => $id,
 		'name' => $name,
@@ -145,6 +146,7 @@ function updateTasksDefinition ($id, $name, $description, $enabled, $frequency_i
 		'frequency_id' => $frequency_id,
 		'object_id' => $object_id,
 		'repeat' => $repeat,
+		'department' => $department,
 	);
 
 	usePreparedUpdateBlade
@@ -238,7 +240,7 @@ function ensureTasksDefinitionNextDue ($id) {
 				', ' . $definition['mode'] . ', ' . $definition['name'] .', ' . $definition['description'] .
 				', ' . $definition['object_id'] . ', ' . $next->format('Y-m-d H:i:s') .
 				')');
-			insertTasksItem($definition['id'], $definition['mode'], $definition['name'], $definition['description'], $definition['object_id'], $next->format('Y-m-d H:i:s'));
+			insertTasksItem($definition['id'], $definition['mode'], $definition['name'], $definition['description'], $definition['object_id'], $next->format('Y-m-d H:i:s'), $definition['department']);
 		}
 	} else {
 		recordTasksDebug('No definition found for '. $definition['id']);
@@ -277,7 +279,7 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 
 	$mainSQL = 'SELECT DISTINCT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
 		'TI.`user_name` AS completed_by, TI.`name`, TI.`mode`, TI.`notes`, ' .
-		'TI.`description`, TI.`completed`, TI.`completed_time`, TI.`created_time`, ' .
+		'TI.`description`, TI.`department`, TI.`completed`, TI.`completed_time`, TI.`created_time`, ' .
 		'TD.`details`, TF.`id` AS `frequency_id`, TF.`name` AS `frequency_name`, ' .
 		'TF.`format` AS `frequency_format` ' .
 		'FROM `TasksItem` AS TI ' .
@@ -298,7 +300,7 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 	return $result->fetchAll (PDO::FETCH_ASSOC);
 }
 
-function insertTasksItem ($definition_id, $mode, $name, $description, $object_id, $time = null) {
+function insertTasksItem ($definition_id, $mode, $name, $description, $object_id, $time = null, $department) {
 	if ($mode == 'schedule') {
 	}
 
@@ -313,6 +315,7 @@ function insertTasksItem ($definition_id, $mode, $name, $description, $object_id
 		'description'   => $description,
 		'object_id'     => $object_id,
 		'created_time'  => $time,
+		'department'    => $department,
 	);
 
 	usePreparedInsertBlade

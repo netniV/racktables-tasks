@@ -9,6 +9,7 @@ function renderTasksDefinitionsGlobals () {
 		renderJSLinks();
 
 		echo getTasksFrequencyFormatSuggestionList ();
+		echo getTasksDepartmentsList ();
 	}
 }
 
@@ -28,6 +29,7 @@ function renderTasksDefinitions ()
 		}
 
 		echo	'<td><input type=text size=24 name=name></td>' .
+			'<td><input type=text size=24 name=department list="departmentlist"></td>' .
 			'<td><input type=text size=48 name=description></td>' .
 			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'enabled'), 'yes') . '</td>' .
 			'<td>' . getSelect (array ('yes' => 'yes', 'no' => 'no'), array ('name' => 'repeat'), 'yes') . '</td>' .
@@ -41,7 +43,6 @@ function renderTasksDefinitions ()
 	}
 
 	startPortlet ('Task Definitions');
-
 	echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" name=tasksdefinitiontable id=tasksdefinitiontable>';
 	echo '<thead><tr>' .
 		'<th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
@@ -51,6 +52,7 @@ function renderTasksDefinitions ()
 	}
 
 	echo	'<th>task</th>' .
+		'<th>department</th>' .
 		'<th>definition</th>' .
 		'<th data-item="yes">enabled</th>' .
 		'<th>repeat</th>' .
@@ -114,10 +116,12 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 
 	$definition = getTasksDefinitions ($tasks_definition_id);
 	$definition = reset($definition);
+
 	if (empty($definition)) {
-		$definition = array('id' => $tasks_definition_id, 'name' => 'missing', 'description' => 'mising',
-			'object_id' => '0', 'object_name' => 'missing',
-			'frequency_id' => '0', 'frequency_name' => 'missing');
+		$definition = array('id' => $tasks_definition_id, 'name' => '*missing*',
+			'department' => '*missing*', 'description' => '*missing*',
+			'object_id' => '0', 'object_name' => '*missing*',
+			'frequency_id' => '0', 'frequency_name' => '*missing*');
 	}
 
 	$object_id = $definition['object_id'];
@@ -163,6 +167,10 @@ function renderTasksDefinition ($tasks_definition_id = 0, $isVertical = true)
 	$label = mkA ( stringForTD ($definition['name']), 'tasksdefinition', $definition['id'], $isVertical?'edit':NULL);
 	$input = '<input type=text size=24 name=name value="' . $definition['name'] . '">';
 	renderTasksEditField ($isViewTab, $isVertical, '', 'task', $label, $input);
+
+	$label = htmlspecialchars ($definition['department'], ENT_QUOTES, 'UTF-8');
+	$input = '<input type=text size=48 name=department list=departmentlist value="' . $definition['department'] . '">';
+	renderTasksEditField ($isViewTab, $isVertical, '', 'department', $label, $input);
 
 	$label = htmlspecialchars ($definition['description'], ENT_QUOTES, 'UTF-8');
 	$input = '<input type=text size=48 name=description value="' . $definition['description'] . '">';

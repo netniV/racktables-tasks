@@ -85,6 +85,7 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		}
 
 		echo '<th>task</th>';
+		echo '<th>department</th>';
 		echo '<th>definition</th>';
 		if ($isTasksPage) {
 			echo '<th>object</th>';
@@ -192,7 +193,8 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 
 	$task      = reset($task);
 	if (empty($task)) {
-		$task = array('id' => $task_item_id, 'name' => 'missing', 'description' => 'mising',
+		$task = array('id' => $task_item_id, 'name' => 'missing',
+			'department' => 'missing', 'description' => 'mising',
 			'object_id' => '0', 'object_name' => 'missing',
 			'frequency_id' => '0', 'frequency_name' => 'missing',
 			'definition_id' => '0', 'completed' => 'missing');
@@ -260,6 +262,9 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$label = mkA (stringForTD ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
 	$input = stringForTD ($task['name']);
 	renderTasksEditField ($isViewTab || !$isVertical, $isVertical, $prefix . 'name', 'task', $label, $input);
+
+	$input = stringForTD ($task['department']);
+	renderTasksEditField ($isViewTab, $isVertical, $prefix . 'definition', 'definition', $input, $input);
 
 	if (empty($task['description'])) {
 		$tasks['description'] = 'definition ' + $task['definition_id'];

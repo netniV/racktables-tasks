@@ -53,7 +53,8 @@ function addTasksDefinition () {
 		assertTasksParam ('type', 'enum/mode'),
 		assertTasksParam ('object_id', 'uint0'),
 		assertTasksParam ('details', 'string0'),
-		assertTasksParam ('repeat','enum/yesno')
+		assertTasksParam ('repeat','enum/yesno'),
+		assertTasksParam ('department', 'string0'),
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
@@ -71,7 +72,8 @@ function updTasksDefinition () {
 		assertTasksParam ('mode', 'enum/mode'),
 		assertTasksParam ('object_id', 'uint0'),
 		assertTasksParam ('details', 'string0'),
-		assertTasksParam ('repeat','enum/yesno')
+		assertTasksParam ('repeat', 'enum/yesno'),
+		assertTasksParam ('department', 'string0'),
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }

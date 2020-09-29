@@ -104,11 +104,16 @@ read using just multiple relative formats.
 
 ## Examples
 
-In any given frequency, multiple formats can be used as long as they are separated by semi-colon's (;).  Eg, ***next monday; next tuesday*** would move forward up to the next monday, then the following tuesday.  This gives the powr and flexibility to be able to customise the frequency to what ever you would like.
+In any given frequency, multiple formats can be used as long as they are
+separated by semi-colon's (;).  Eg, ***next monday; next tuesday*** would move
+forward up to the next monday, then the following tuesday.  This gives the powr
+and flexibility to be able to customise the frequency to what ever you would
+like.
 
 ### Simple relative formats
 
-If you try to add time to any relative format, it must come at the end or be a separate format after a semi-colon (;)
+If you try to add time to any relative format, it must come at the end or be a
+separate format after a semi-colon (;)
 
 Frequency | Meaning
 :--- | :---
@@ -124,7 +129,11 @@ last tuesday of next month | Moves forward a month, and finds the last Tuesday
 
 ### Basic relative formats
 
-**Note:** *With any of the `monthly` examples below, you may end up with an unexpected date if the original day of month is greater than 28 in the start date.  For example, if the start date is 2018-01-31, +1 month would result in 2018-03-03.  Unfortuntely, this is a PHP limiation/bug not a coding error with the plugin.*
+**Note:** *With any of the `monthly` examples below, you may end up with an
+unexpected date if the original day of month is greater than 28 in the start
+date.  For example, if the start date is 2018-01-31, +1 month would result in
+2018-03-03.  Unfortuntely, this is a PHP limiation/bug not a coding error with
+the plugin.*
 
 Frequency | Meaning
 :--- | :---
@@ -141,7 +150,10 @@ last of month (last&nbsp;day&nbsp;of&nbsp;next&nbsp;month) | Move to the last da
 
 ### Advanced relative formats
 
-**Note:** *With any of the `monthly` examples above, you may end up with an unexpected date if the original day of month is greater than 28 in the start date.  Below, this is circumvented by using* **first day of this month** *which allows the system to move forward correct in months*
+**Note:** *With any of the `monthly` examples above, you may end up with an
+unexpected date if the original day of month is greater than 28 in the start
+date.  Below, this is circumvented by using* **first day of this month** *which
+allows the system to move forward correct in months*
 
 Frequency | Meaning
 :--- | :---
@@ -151,7 +163,10 @@ semi-annual first (first&nbsp;day&nbsp;of&nbsp;this&nbsp;month, +6&nbsp;months&n
 
 ### Interval format
 
-The format for any interval format starts with a capital letter P, for "period." Each duration period is represented by an integer value followed by a period designator. If the duration contains time elements, that portion of the specification is preceded by the letter T.
+The format for any interval format starts with a capital letter P, for "period."
+Each duration period is represented by an integer value followed by a period
+designator. If the duration contains time elements, that portion of the
+specification is preceded by the letter T.
 
 Designator | Description
 ---: | :---
@@ -165,7 +180,8 @@ S | seconds
 
 ### Interval examples
 
-It should be noted that, as with relative formats, adding months can result in n unexpected shift in days when added to a date where the day is beyond the 28th.
+It should be noted that, as with relative formats, adding months can result in an
+unexpected shift in days when added to a date where the day is beyond the 28th.
 
 Format | Description
 ---: | :---
