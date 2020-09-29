@@ -54,7 +54,7 @@ function addTasksDefinition () {
 		assertTasksParam ('object_id', 'uint0'),
 		assertTasksParam ('details', 'string0'),
 		assertTasksParam ('repeat','enum/yesno'),
-		assertTasksParam ('department', 'string0'),
+		assertTasksParam ('department', 'string0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
@@ -73,7 +73,7 @@ function updTasksDefinition () {
 		assertTasksParam ('object_id', 'uint0'),
 		assertTasksParam ('details', 'string0'),
 		assertTasksParam ('repeat', 'enum/yesno'),
-		assertTasksParam ('department', 'string0'),
+		assertTasksParam ('department', 'string0')
 	);
 	showFuncMessage (__FUNCTION__, 'OK');
 }
