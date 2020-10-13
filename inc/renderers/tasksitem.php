@@ -225,7 +225,9 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 				$count++;
 			}
 
-			if ($count > 2) {
+			$total_days = $next->diff($created)->format("%a");
+
+			if ($count > 2 || $total_days > 30) {
 				$color = 'late';
 			} else if ($count > 1) {
 				$color = 'overdue';
