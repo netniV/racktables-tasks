@@ -4,7 +4,7 @@ function makeTableSortable(element, sort, usePager) {
 		return;
 
 	if (typeof sort == 'undefined') {
-		sort = [[6,0]];
+		sort = [[7,0]];
 	}
 
 	if (typeof usePager == 'undefined') {
