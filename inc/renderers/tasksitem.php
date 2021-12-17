@@ -33,18 +33,21 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		}
 	}
 
-	$isTasksPage = $_PAGE == 'tasks';
+	$isTasksPage      = $_PAGE == 'tasks';
 	$isDefinitionPage = $_PAGE == 'tasksdefinition';
+	$taskSortOrder    = '[[7, 0], [8, 1], [6, 0]]';
 
 	if ($isTasksPage) {
-		$isHistoryTab = $_TAB == 'history';
-		$title = $isHistoryTab ? 'Tasks History' : 'Tasks Outstanding';
+		$isHistoryTab  = $_TAB == 'history';
+		$title         = $isHistoryTab ? 'Tasks History' : 'Tasks Outstanding';
+		$taskSortOrder = $isHistoryTab ? '[[8, 1], [7, 0]]' : '[[7, 0]]'; // Completed time
 	} else if ($isDefinitionPage) {
-		$isHistoryTab = empty($_TAB) || $_TAB == 'default';
+		$isHistoryTab  = empty($_TAB) || $_TAB == 'default';
+		$taskSortOrder = '[[7, 0], [8, 1]]';
 		$title = 'Tasks';
-	} else {
-		$isHistoryTab = $_TAB == 'tasksitem';
-		$title = $isHistoryTab ? 'Tasks' : 'Tasks Outstanding';
+	} else { // Object page
+		$isHistoryTab  = $_TAB == 'tasksitem';
+		$title         = $isHistoryTab ? 'Tasks' : 'Tasks Outstanding';
 	}
 
 	$isAddTab = $_TAB == 'add';
@@ -77,7 +80,7 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		startPortlet ($title);
 
 		$tableName = ($isTasksPage || $isHistoryTab) ? 'taskstable' : 'tasksitemtable';
-		echo '<table cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=' . $tableName . ' name=' . $tableName . '>';
+		echo '<table data-task-filter="' . $taskSortOrder . '" cellspacing=0 cellpadding=5 align=center class="tablesorter widetable" id=' . $tableName . ' name=' . $tableName . '>';
 		echo '<thead><tr><th data-sorter="false" data-filter="false" class="filter-false">&nbsp;</th>';
 
 		if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {

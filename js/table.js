@@ -1,10 +1,16 @@
 function makeTableSortable(element, sort, usePager) {
-	$table = $(element);
-	if ($table.length === 0)
+	tableEl = $(element);
+	if (tableEl.length === 0)
 		return;
 
-	if (typeof sort == 'undefined') {
-		sort = [[7,0]];
+	debugger;
+	defaultSort = tableEl.data('task-filter');
+	if (typeof defaultSort === 'undefined' || defaultSort == null || (typeof defaultSort.replace != 'undefined' && defaultSort.replace(/\s/g, '').length < 1)) {
+		if (typeof sort == 'undefined') {
+			sort = [[7,0],[8,1]];
+		}
+	} else {
+		sort = defaultSort;
 	}
 
 	if (typeof usePager == 'undefined') {
@@ -82,7 +88,7 @@ function makeTableSortable(element, sort, usePager) {
 		$('.pager').hide();
 	}
 
-	$table
+	tableEl
 		// Initialize tablesorter
 		// ***********************
 		.tablesorter({
@@ -236,7 +242,7 @@ $(function() {
 		f.setDate(c);
 	});
 
-	makeTableSortable('#taskstable');
+	makeTableSortable('#taskstable', [[8, 1]]);
 	makeTableSortable('#tasksitemtable', undefined, false);
 	makeTableSortable('#tasksdefinitiontable', [[1,0]]);
 	makeTableSortable('#tasksfrequencytable', [[1,0]]);
