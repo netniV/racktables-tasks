@@ -14,7 +14,7 @@ function plugin_tasks_info ()
 		'name' => 'tasks',
 		'longname' => 'Tasks',
 		'version' => '1.4',
-		'home_url' => 'http://github.com/netniv/racktables-tasks/'
+		'home_url' => 'https://github.com/netniv/racktables-tasks/'
 	);
 }
 
