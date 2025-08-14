@@ -263,10 +263,6 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
 		$label = $task_item_id . $label;
 		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'id', 'id', $label, $label);
-
-		$label = mkA ( stringForTD ($task['frequency_name']), 'tasksfrequency', $task['frequency_id']);
-		$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id'), $task['frequency_id'], FALSE);
-		renderTasksEditField ($isViewTab, $isVertical, '', 'frequency', $label, $input);
 	}
 
 	$label = mkA (stringForTD ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
@@ -302,6 +298,10 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
 		$label = htmlspecialchars (getTasksMode ($task['mode']), ENT_QUOTES, 'UTF-8');
 		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'mode', 'mode', $label, $label);
+
+		$label = mkA ( stringForTD ($task['frequency_name']), 'tasksfrequency', $task['frequency_id']);
+		$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id'), $task['frequency_id'], FALSE);
+		renderTasksEditField ($isViewTab, $isVertical, '', 'frequency', $label, $input);
 	}
 
 	$label = htmlspecialchars (getTasksDateTime ($task['created_time'], $isVertical), ENT_QUOTES, 'UTF-8');
