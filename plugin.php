@@ -322,7 +322,7 @@ function plugin_tasks_upgrade ()
 		catch (PDOException $e)
 		{
 			$errorInfo = $dbxlink->errorInfo();
-			throw new RackTablesError ("Query: ${errorInfo[2]}", RackTablesError::INTERNAL);
+			throw new RackTablesError ("Query: {$errorInfo[2]}", RackTablesError::INTERNAL);
 		}
 	}
 

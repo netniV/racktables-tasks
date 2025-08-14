@@ -25,8 +25,8 @@ foreach ($argv as $arg) {
 			$created = new DateTime($task['created_time']);
 			$diff  = $now->diff($created);
 
-			echo "[=== Task #${task['id']} - Mode: ${mode} ===]" . PHP_EOL;
-			echo " ${task['name']} (${task['description']})" . PHP_EOL . PHP_EOL;
+			echo "[=== Task #{$task['id']} - Mode: {$mode} ===]" . PHP_EOL;
+			echo " {$task['name']} ({$task['description']})" . PHP_EOL . PHP_EOL;
 			echo " - Created..: " . $created->format('Y-m-d H:i:s') . PHP_EOL;
 			if ($task['completed'] == 'yes') {
 				$completed = new DateTime($task['completed_time']);
@@ -38,23 +38,23 @@ foreach ($argv as $arg) {
 
 			echo $due->format('Y-m-d H:i:s');
 			if (!empty($task['completed_by'])) {
-				echo " (by ${task['completed_by']})";
+				echo " (by {$task['completed_by']})";
 			}
 			echo PHP_EOL;
 
 			if ($created <= $due) {
-				echo " - Frequency: ${task['frequency_format']}" . PHP_EOL;
+				echo " - Frequency: {$task['frequency_format']}" . PHP_EOL;
 
 				$freq  = $task['frequency_format'];
 				$next  = clone $created;
 				$count = 0;
 
 				while ($count < 2 && $next < $due) {
-					echo "   - Next  ${count}: " . $next->format('Y-m-d H:i:s') . PHP_EOL;
+					echo "   - Next  {$count}: " . $next->format('Y-m-d H:i:s') . PHP_EOL;
 					$count++;
 					$next = getTasksNextDue($freq, $next);
 				}
-				echo "   - Final ${count}: " . $next->format('Y-m-d H:i:s') . PHP_EOL;
+				echo "   - Final {$count}: " . $next->format('Y-m-d H:i:s') . PHP_EOL;
 
 				if ($count > 2) {
 					$color = 'late';
@@ -64,7 +64,7 @@ foreach ($argv as $arg) {
 					$color = 'pastdue';
 				}
 			}
-			echo " - Color....: ${color}" . PHP_EOL;
+			echo " - Color....: {$color}" . PHP_EOL;
 			echo PHP_EOL;
 		}
 	}

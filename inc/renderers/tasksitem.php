@@ -96,6 +96,7 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 
 		if (getConfigVar ('TASKS_HIDE_MODE') != 'yes') {
 			echo '<th>type</th>';
+			echo '<th>frequency</th>';
 		}
 
 		echo '<th>date</th>';
@@ -262,6 +263,10 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	if (getConfigVar ('TASKS_HIDE_ID') != 'yes') {
 		$label = $task_item_id . $label;
 		renderTasksEditField ($isViewTab, $isVertical, $prefix . 'id', 'id', $label, $label);
+
+		$label = mkA ( stringForTD ($task['frequency_name']), 'tasksfrequency', $task['frequency_id']);
+		$input = getSelect (getTasksFrequencyEntities (), array('name' => 'frequency_id'), $task['frequency_id'], FALSE);
+		renderTasksEditField ($isViewTab, $isVertical, '', 'frequency', $label, $input);
 	}
 
 	$label = mkA (stringForTD ($task['name']), 'tasksitem', $task['id'], $isVertical?'edit':NULL);
