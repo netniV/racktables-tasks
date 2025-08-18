@@ -242,7 +242,7 @@ $(function() {
 		f.setDate(c);
 	});
 
-	makeTableSortable('#taskstable', [[8, 1]]);
+	makeTableSortable('#taskstable', [[9, 1]]);
 	makeTableSortable('#tasksitemtable', undefined, false);
 	makeTableSortable('#tasksdefinitiontable', [[1,0]]);
 	makeTableSortable('#tasksfrequencytable', [[1,0]]);

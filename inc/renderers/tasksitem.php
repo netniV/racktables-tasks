@@ -35,12 +35,12 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 
 	$isTasksPage      = $_PAGE == 'tasks';
 	$isDefinitionPage = $_PAGE == 'tasksdefinition';
-	$taskSortOrder    = '[[7, 0], [8, 1], [6, 0]]';
+	$taskSortOrder    = '[[8, 0], [9, 1], [7, 0]]';
 
 	if ($isTasksPage) {
 		$isHistoryTab  = $_TAB == 'history';
 		$title         = $isHistoryTab ? 'Tasks History' : 'Tasks Outstanding';
-		$taskSortOrder = $isHistoryTab ? '[[8, 1], [7, 0]]' : '[[7, 0]]'; // Completed time
+		$taskSortOrder = $isHistoryTab ? '[[9, 1], [8, 0]]' : '[[8, 0]]'; // Completed time
 	} else if ($isDefinitionPage) {
 		$isHistoryTab  = empty($_TAB) || $_TAB == 'default';
 		$taskSortOrder = '[[7, 0], [8, 1]]';
@@ -270,7 +270,7 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	renderTasksEditField ($isViewTab || !$isVertical, $isVertical, $prefix . 'name', 'task', $label, $input);
 
 	$input = stringForTD ($task['department']);
-	renderTasksEditField ($isViewTab, $isVertical, $prefix . 'definition', 'definition', $input, $input);
+	renderTasksEditField ($isViewTab, $isVertical, $prefix . 'department', 'department', $input, $input);
 
 	if (empty($task['description'])) {
 		$tasks['description'] = 'definition ' + $task['definition_id'];
