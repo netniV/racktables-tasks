@@ -300,7 +300,7 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 	return $result->fetchAll (PDO::FETCH_ASSOC);
 }
 
-function insertTasksItem ($definition_id, $mode, $name, $description, $object_id, $time = null, $department) {
+function insertTasksItem ($definition_id, $mode, $name, $description, $object_id, $time = null, $department = '') {
 	if ($mode == 'schedule') {
 	}
 
