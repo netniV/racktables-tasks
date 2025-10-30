@@ -16,6 +16,7 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 
 	$_PAGE = isset($_REQUEST['page']) ? $_REQUEST['page'] : '';
 	$_TAB  = isset($_REQUEST['tab'])  ? $_REQUEST['tab'] : '';
+	$_OP   = isset($_REQUEST['op'])   ? $_REQUEST['op'] : '';
 
 	if ($object_id == NULL) {
 		if (isset($_REQUEST['object_id'])) {
@@ -36,9 +37,13 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 	$isTasksPage      = $_PAGE == 'tasks';
 	$isDefinitionPage = $_PAGE == 'tasksdefinition';
 	$taskSortOrder    = '[[8, 0], [9, 1], [7, 0]]';
+	$isHistoryFull    = false;
+	$needsCompleted   = false;
+	$needsOutstanding = false;
 
 	if ($isTasksPage) {
 		$isHistoryTab  = $_TAB == 'history';
+		$isHistoryFull = $_OP == 'all';
 		$title         = $isHistoryTab ? 'Tasks History' : 'Tasks Outstanding';
 		$taskSortOrder = $isHistoryTab ? '[[9, 1], [8, 0]]' : '[[8, 0]]'; // Completed time
 	} else if ($isDefinitionPage) {
@@ -51,20 +56,26 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 	}
 
 	$isAddTab = $_TAB == 'add';
-	$tasks = array();
 	if (!$isHistoryTab || ($isHistoryTab && !$isTasksPage)) {
-		$temp  = getTasksItems ($object_id, 'no', 0, $task_definition_id);
-		if ($temp !== false && sizeof($temp)) {
-			$tasks = array_merge($tasks, $temp);
-		}
+		$needsOutstanding = true;
 	}
 
 	if ($isHistoryTab) {
-		$temp  = getTasksItems ($object_id, 'yes', 0, $task_definition_id);
-		if ($temp !== false && sizeof($temp)) {
-			$tasks = array_merge($tasks, $temp);
-		}
+		$needsCompleted = true;
 	}
+
+	if ($isHistoryFull) {
+		$pageRows = null;
+	} else {
+		$pageRows = getConfigVar('TASKS_PAGE_ROWS');
+		error_log("TasksItem: $pageRows (start)");
+		if (empty($pageRows) || intval($pageRows) < 1) {
+			$pageRows = 100;
+		}
+		error_log("TasksItem: $pageRows (end)");
+	}
+
+	$tasks = getTasksItems (object_id: $object_id, outstanding: $needsOutstanding, completed: $needsCompleted, task_definition_id: $task_definition_id, page_rows: $pageRows);
 
 	$show  = true;
 	if (($tasks === false || !count($tasks)) && (empty($_TAB) || $_TAB == 'default')) {
@@ -75,6 +86,18 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		if ($isAddTab) {
 			renderTasksItem(0);
 			return;
+		}
+
+		if ($isHistoryTab) {
+			if (!$isHistoryFull && count($tasks) == $pageRows) {
+				$lastTask = end($tasks); // get the last task (earliest completed)
+				if (!empty($lastTask['completed_time'])) {
+					$lastDate = date('m/d/Y', strtotime($lastTask['completed_time']));
+					$title .= " (First {$pageRows} rows until {$lastDate})";
+				}
+			} else {
+				$title .= " (All)";
+			}
 		}
 
 		startPortlet ($title);
@@ -146,13 +169,23 @@ function renderTasksItems ($object_id = NULL, $task_definition_id = NULL)
 		<select class="gotoPage" title="Select page number"></select>
 		</form>
 		</div>';
+		if ($isHistoryTab && !$isHistoryFull && count($tasks) == $pageRows) {
+			// Get current URL
+			$currenturl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http")
+						. "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+
+			// Determine proper separator for query parameters
+			$separator = (strpos($currenturl, '?') !== false) ? '&' : '?';
+
+			echo "<div><a href='{$currenturl}{$separator}op=all'>Show All</a></div>";
+		}
 		finishPortlet ();
 	}
 }
 
 function triggerTasksItems ()
 {
-/*	if (! count (getTasksDefinitions ()))
+	/*	if (! count (getTasksDefinitions ()))
 		return '';
 	if
 	(
@@ -163,7 +196,7 @@ function triggerTasksItems ()
 	return '';
 }
 
-function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = false, $isHistoryTab = false)
+function renderTasksItem (int $task_item_id = 0, bool $isVertical = true, bool $isTasksPage = false, bool $isHistoryTab = false)
 {
 	global $remote_username;
 
@@ -190,18 +223,25 @@ function renderTasksItem ($task_item_id = 0, $isVertical = true, $isTasksPage = 
 	$isViewTab = empty($_TAB) || $_TAB == 'default' || $_TAB == 'history';
 	$isAddTab  = $_TAB == 'add';
 
-	$task      = getTasksItems ($object_id, NULL, $task_item_id);
-//	if (empty($task)) {
-//		throw new EntityNotFoundException('TasksItem', $id);
-//	}
+	$task      = getTasksItems(object_id: $object_id, task_id: $task_item_id);
+	//	if (empty($task)) {
+	//		throw new EntityNotFoundException('TasksItem', $id);
+	//	}
 
 	$task      = reset($task);
 	if (empty($task)) {
-		$task = array('id' => $task_item_id, 'name' => 'missing',
-			'department' => 'missing', 'description' => 'mising',
-			'object_id' => '0', 'object_name' => 'missing',
-			'frequency_id' => '0', 'frequency_name' => 'missing',
-			'definition_id' => '0', 'completed' => 'missing');
+		$task = [
+			'id' => $task_item_id,
+			'name' => 'missing',
+			'department' => 'missing',
+			'description' => 'mising',
+			'object_id' => '0',
+			'object_name' => 'missing',
+			'frequency_id' => '0',
+			'frequency_name' => 'missing',
+			'definition_id' => '0',
+			'completed' => 'missing'
+		];
 	}
 	$object_id = $task['object_id'];
 

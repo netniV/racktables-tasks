@@ -8,8 +8,9 @@ if (!function_exists('existsConfigVar')) {
 
 		if (!NULL === $value = array_fetch ($configCache, $varname, NULL))
 		{
-			recordTasksDebug("existsConfigVar ($varname) [cache]: 1");
 			$value = 1;
+			$result = intval($value);
+			$type = "cache";
 		}
 		else
 		{
@@ -21,10 +22,13 @@ if (!function_exists('existsConfigVar')) {
 				array($varname)
 			);
 			$rows = $result->fetch (PDO::FETCH_NUM);
-			$value = count ($rows) == 1 ? $rows[0][0] : 'NULL';
-			recordTasksDebug("existsConfigVar ($varname) [db]: $value");
+			$value = $rows[0] ?? 'NULL';
+			$result = intval($value);
+			$type = 'db';
 		}
 
-		return intval($value);
+		recordTasksDebug("existsConfigVar ({$varname}) [{$type}]: {$value} ({$result})");
+
+		return $result;
 	}
 }

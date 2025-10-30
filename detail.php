@@ -17,7 +17,7 @@ foreach ($argv as $arg) {
 
 	$task_item_id = intval($arg);
 	if ($task_item_id > 0) {
-		$tasks	= getTasksItems (0, NULL, $task_item_id);
+		$tasks	= getTasksItems (object_id: 0, task_id: $task_item_id);
 
 		foreach ($tasks as $task) {
 			$mode = $modes[$task['mode']];

@@ -13,7 +13,7 @@ function plugin_tasks_info ()
 	(
 		'name' => 'tasks',
 		'longname' => 'Tasks',
-		'version' => '1.4',
+		'version' => '1.5',
 		'home_url' => 'https://github.com/netniv/racktables-tasks/'
 	);
 }
@@ -85,6 +85,9 @@ function plugin_tasks_vars ()
 			'1.4' => array(
 				array('name' => 'TASKS_DEPARTMENTS',   'type' => 'string', 'default' => 'Sales,Support,Technology,Facilities,Compliance,Accounting', 'desc' => 'Comma separated departments'),
 			),
+			'1.5' => array(
+				array('name' => 'TASKS_PAGE_ROWS',    'type' => 'string', 'default' => '100', 'desc' => 'Maximum task items per page (default 100)'),
+			)
 		);
 	}
 
@@ -176,6 +179,7 @@ CREATE TABLE IF NOT EXISTS `TasksItem`(
 
 function plugin_tasks_vars_add ($reset = false) {
 	recordTasksDebug('plugin_tasks_vars_add(): Start');
+	error_log('plugin_tasks_vars_add(): Start');
 	$configVars = plugin_tasks_vars();
 	foreach ($configVars as $ver => $vars) {
 		recordTasksDebug('plugin_tasks_vars_add(): v' . $ver);
@@ -187,7 +191,14 @@ function plugin_tasks_vars_add ($reset = false) {
 				recordTasksDebug('plugin_tasks_vars_add: ['.$var['name'].'] addConfigVar ("' . $var['name'] .
 					'", "' . $var['default'] . '", "' . $var['type'] . '", "yes", "no", "no", "' . $var['desc'] .
 					'");');
-				addConfigVar ($var['name'], $var['default'],  $var['type'], "yes", "no", "no", $var['desc']);
+       try {
+            error_log("Attempting to add config var '{$var['name']}'");
+            addConfigVar ($var['name'], $var['default'],  $var['type'], "yes", "no", "no", $var['desc']);
+        } catch (PDOException $e) {
+            error_log("Failed to add config var '{$var['name']}': " . $e->getMessage());
+	throw $e;
+        }
+//				addConfigVar ($var['name'], $var['default'],  $var['type'], "yes", "no", "no", $var['desc']);
 			} elseif ($reset) {
 				recordTasksDebug('plugin_tasks_vars_add: ['.$var['name'].'] setConfigVar ("' . $var['name'] .
 					'", "' . $var['default'] . '");');
@@ -252,6 +263,7 @@ function plugin_tasks_upgrade ()
 		'1.2',
 		'1.3',
 		'1.4',
+		'1.5',
 	);
 
 	$skip = TRUE;
@@ -303,13 +315,18 @@ function plugin_tasks_upgrade ()
 				$queries[] = "ALTER TABLE `TasksItem` ADD `department` varchar(40) DEFAULT NULL";
 				break;
 
+			case '1.5':
+				break;
+
 			default:
 				throw new RackTablesError("Preparing to upgrade to $v failed", RackTablesError::INTERNAL);
 		}
 		$queries[] = "UPDATE Plugin SET version = '$v' WHERE name = 'tasks'";
 	}
 
+	error_log('before vars');
 	plugin_tasks_vars_add ();
+	error_log('after vars');
 
 	// execute the queries
 	global $dbxlink;
@@ -384,7 +401,7 @@ function plugin_tasks_decodeTitle($no) {
 			$obj = spotEntity('object', $object_id);
 		} elseif (isset($_REQUEST['task_item_id'])) {
 			$mode = 'task_item_id';
-			$obj = getTasksItems (0, NULL, $_REQUEST['task_item_id']);
+			$obj = getTasksItems (object_id: 0, outstanding: false, completed: false, task_id: $_REQUEST['task_item_id']);
 			if ($obj) {
 				$obj = reset($obj);
 				$obj['dname'] = $obj['object_name'];
@@ -448,7 +465,7 @@ function plugin_tasks_decodeTitle($no) {
 	} elseif ($no == 'tasksitem') {
 		recordTasksDebug ('REQUEST: ' . json_encode(var_export($_REQUEST, true)));
 		$mode = 'tasksitem_id';
-		$obj = getTasksItems (0, NULL, $_REQUEST['task_item_id']);
+		$obj = getTasksItems (object_id: 0, outstanding: false, completed: false, task_id: $_REQUEST['task_item_id']);
 		if ($obj) {
 			$obj = reset($obj);
 			$title = array(

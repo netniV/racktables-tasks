@@ -249,7 +249,15 @@ function ensureTasksDefinitionNextDue ($id) {
 
 /*** TASKSITEM FUNCTIONS ***/
 
-function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task_definition_id = 0)
+/**
+ *
+ * @param int $object_id
+ * @param null|int $page_start
+ * @param int $task_id
+ * @param int $task_definition_id
+ * @return mixed
+ */
+function getTasksItems (int $object_id, bool $outstanding = false, bool $completed = false, int $task_id = 0, int $task_definition_id = 0, ?int $page_rows = null, ?int $page_start = null)
 {
 	$params = array($object_id);
 	$tasksWhere = ($object_id > 0) ?
@@ -267,16 +275,21 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 	}
 
 	$definitionWhere = '';
-	if ($include_completed !== NULL) {
-		if (empty($include_completed)) {
-			$include_completed = 'no';
-			$definitionWhere = ($include_completed == 'yes') ? '' : '    AND (TD.`enabled` = "yes") ';
-		}
-
-		$tasksWhere .= 'AND TI.`completed` = ? ';
-		$params[] = $include_completed;
+	if ($outstanding) {
+		$definitionWhere = '(TI.`completed` = "no" and TD.`enabled` = "yes")';
 	}
 
+	if ($completed) {
+		if ($definitionWhere) {
+			$definitionWhere .= " OR ";
+		}
+
+		$definitionWhere = '(TI.`completed` = "yes")';
+	}
+
+	if (!empty($definitionWhere)) {
+		$definitionWhere = "AND ({$definitionWhere})";
+	}
 	$mainSQL = 'SELECT DISTINCT TI.`id`, `definition_id`, TI.`object_id`, O.`name` as `object_name`, ' .
 		'TI.`user_name` AS completed_by, TI.`name`, TI.`mode`, TI.`notes`, ' .
 		'TI.`description`, TI.`department`, TI.`completed`, TI.`completed_time`, TI.`created_time`, ' .
@@ -288,12 +301,27 @@ function getTasksItems ($object_id, $include_completed = '', $task_id = 0, $task
 		'INNER JOIN `TasksFrequency` AS TF ON TF.`id` = TD.`frequency_id` ' .
 		'LEFT JOIN `Object` O ON O.id = TI.`object_id` ';
 
+	$limitSQL = '';
+	if ($page_rows) {
+		if ($page_start == NULL || $page_start < 1) {
+			$page_start = 1;
+		}
+
+		$page_start = ($page_start - 1) * $page_rows;
+
+		if ($page_start == NULL || $page_start < 1) {
+			$page_start = 1;
+		}
+
+		$limitSQL = "LIMIT $page_start, $page_rows";
+	}
+
 	//echo "SQL: <pre>" . htmlspecialchars($mainSQL . "\n" . $tasksWhere . "\n" . var_export($params, true)) . "</pre>";
 	$result = usePreparedSelectBlade
 	(
 		$mainSQL .
 		$tasksWhere .
-		'ORDER BY `completed` DESC, `completed_time` DESC, `created_time` ASC, `id`',
+		"ORDER BY `completed` ASC, `completed_time` DESC, `created_time` ASC, `id` $limitSQL",
 		$params
 	);
 
